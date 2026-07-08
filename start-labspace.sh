@@ -56,12 +56,25 @@ if ! command -v sbx &>/dev/null; then
 fi
 
 # ── 3. Ensure sbx daemon is running ────────────────────────────
-DAEMON_OUTPUT=$(sbx daemon start 2>&1)
-if echo "$DAEMON_OUTPUT" | grep -q "already running"; then
+#   NOTE: `sbx daemon start` (no flags) runs in the FOREGROUND and blocks
+#   until Ctrl+C. Never capture it with $(...) — that hangs the script with
+#   no output when the daemon isn't already up. Use `-d` (detach) instead.
+#   Also: `sbx daemon status` exits 0 whether running OR stopped, so we key
+#   off the "Status: running" text, not the exit code.
+daemon_running() { sbx daemon status 2>/dev/null | grep -q "Status: running"; }
+if daemon_running; then
   info "sbx daemon already running"
 else
-  info "sbx daemon not running — starting it..."
-  sleep 2
+  info "sbx daemon not running — starting it (detached)..."
+  sbx daemon start -d &>/dev/null || true
+  for _ in $(seq 1 15); do
+    daemon_running && break
+    sleep 1
+  done
+  if ! daemon_running; then
+    error "sbx daemon failed to start. Run 'sbx daemon start' manually to see the error."
+  fi
+  info "sbx daemon started"
 fi
 
 SBX_VERSION=$(sbx version 2>/dev/null)
