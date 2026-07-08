@@ -25,7 +25,7 @@ sbx version
 If it's not installed, then run the following command:
 
 ```bash no-run-button
-brew install docker/tap/sbx@nightly
+brew install docker/tap/sbx
 ```
 
 Verify you're logged in to Docker:
