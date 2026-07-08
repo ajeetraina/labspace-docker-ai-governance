@@ -68,5 +68,15 @@ If you don't have an organization yet, you can still walk through Sections 00-02
 
 Total walkthrough: ~110 minutes.
 
+## Troubleshooting
+
+In case you face issue related to ttyd:
+
+```
+ERROR: ttyd failed to start on port 8085
+```
+
+Just try to use `lsof -i :8085` to find the existing ttyd process ID and kill it using `kill` command. Restart the start-labspace script.
+
 
 
