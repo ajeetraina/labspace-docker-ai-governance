@@ -1,0 +1,19 @@
+services:
+  configurator:
+    environment:
+      PROJECT_CLONE_URL: https://github.com/ajeetraina/labspace-sbx
+
+  # Dummy workspace - satisfies depends_on, Mac terminal owns port 8085
+  workspace:
+    image: ajeetraina777/labspace-workspace-ttyd:latest
+    pull_policy: always
+    command: ttyd --writable bash
+    ports: !override []
+    environment:
+      PORT: "8086"
+
+  interface:
+    image: ajeetraina777/labspace-interface-sbx:latest
+    pull_policy: always
+    environment:
+      WORKSPACE_TYPE: ttyd
