@@ -1,0 +1,47 @@
+services:
+  observability:
+    build:
+      context: .
+    image: labspace-observability:latest
+    # Run as root for read access to the bind-mounted /var/run/docker.sock.
+    # See compose.override.yaml at the repo root for the same setting and
+    # the rationale.
+    user: "0"
+    ports:
+      - "8090:8090"
+    environment:
+      # Path INSIDE the mounted sbx data dir to the logs. macOS/Linux use
+      # sandboxes/sandboxd; Windows inserts a 'state' segment, so Windows
+      # users set SBX_LOG_SUBPATH=sandboxes/state/sandboxd (see volumes).
+      SBX_DAEMON_LOG: "/var/log/sbx/${SBX_LOG_SUBPATH:-sandboxes/sandboxd}/daemon.log"
+      SBX_MCP_LOG: "/var/log/sbx/${SBX_LOG_SUBPATH:-sandboxes/sandboxd}/mcp/mcp.log"
+      LISTEN_ADDR: ":8090"
+      # Synthesised user identity. sbx v0.32.0 doesn't emit user identity
+      # in audit events; we use the host user as a best-effort proxy.
+      LABSPACE_USER: "${LABSPACE_USER:-${USER:-unknown}}"
+    volumes:
+      # Host sbx data dir, mounted read-only. Defaults to the macOS path.
+      # Override SBX_DATA_DIR per-platform BEFORE launch:
+      #   Linux:   export SBX_DATA_DIR=~/.local/share/com.docker.sandboxes
+      #   Windows: $env:SBX_DATA_DIR="$env:LOCALAPPDATA\DockerSandboxes"
+      #            $env:SBX_LOG_SUBPATH="sandboxes/state/sandboxd"
+      - "${SBX_DATA_DIR:-${HOME}/Library/Application Support/com.docker.sandboxes}:/var/log/sbx:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    restart: unless-stopped
+
+  # Optional MCP gateway. Opt-in via the 'with-gateway' profile so the
+  # default `docker compose up` runs only the dashboard. Run both together:
+  #   docker compose --profile with-gateway up -d --build
+  mcp-gateway:
+    image: docker/mcp-gateway
+    profiles: ["with-gateway"]
+    command:
+      - "--servers=duckduckgo"
+      - "--transport=sse"
+      - "--port=8811"
+      - "--verbose=true"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+      - "8811:8811"
+    restart: unless-stopped

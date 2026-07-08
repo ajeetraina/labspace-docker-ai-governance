@@ -1,0 +1,12 @@
+services:
+  gateway:
+    image: docker/mcp-gateway
+    # --verbose=true makes the gateway emit per-request log lines (tool calls,
+    # list-tools/list-resources requests, etc.) to stdout. The observability
+    # kit's dashboard picks these up and surfaces them alongside sbx policy
+    # events. Set --verbose=false in production or you'll drown in logs.
+    command: ["--servers=duckduckgo", "--transport=sse", "--port=8811", "--verbose=true"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8811:8811"

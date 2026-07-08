@@ -1,0 +1,79 @@
+metadata:
+  name: ai-governance
+  title: Docker AI Governance
+  description: |
+    Define once, enforce everywhere. A hands-on lab proving how Docker
+    AI Governance policies flow from the Admin Console to every developer's
+    sandbox, covering both network and filesystem enforcement.
+
+sections:
+  - title: Setup
+    contentPath: 00-setup.md
+
+  - title: Why AI Governance
+    contentPath: 01-introduction.md
+
+  - title: The Policy Model
+    contentPath: 02-the-policy-model.md
+
+  - title: Network Enforcement Demo
+    contentPath: 03-network-demo.md
+
+  - title: Filesystem Enforcement Demo
+    contentPath: 04-filesystem-demo.md
+
+  - title: Credential Isolation
+    contentPath: 12-credential-isolation.md
+
+  - title: Product Catalog
+    contentPath: 07-product-catalog.md
+
+  - title: MCP Hands-On
+    contentPath: 06-mcp-hands-on.md
+
+  - title: Sandbox Kits
+    contentPath: 14-sandbox-kits.md
+
+  - title: 'Kits: Introduction'
+    contentPath: kits/01-intro.md
+
+  - title: 'Kits: Your First Mixin'
+    contentPath: kits/02-first-mixin.md
+
+  - title: 'Kits: Network & Credentials'
+    contentPath: kits/03-network-and-creds.md
+
+  - title: 'Kits: Fork an Agent Kit'
+    contentPath: kits/04-agent-kit.md
+
+  - title: 'Kits: Stacking & Distribution'
+    contentPath: kits/05-stacking-and-community.md
+
+  - title: 'Kits: Summary'
+    contentPath: kits/06-summary.md
+
+  - title: Putting It All Together
+    contentPath: 13-end-to-end-governance.md
+
+  - title: Observability
+    contentPath: 08-observability.md
+
+  - title: Monitoring Policies
+    contentPath: 09-monitoring-policies.md
+
+  - title: Audit Logging
+    contentPath: 10-audit-logging.md
+
+  - title: Governance API
+    contentPath: 11-governance-api.md
+
+  - title: What's Next
+    contentPath: 05-whats-next.md
+
+# Extra tabs in the right-hand panel. The default "IDE" tab is the primary
+# terminal (ttyd on :8085). Each service below becomes an additional clickable
+# tab. Observability embeds the live sbx/MCP dashboard.
+services:
+  - title: Observability
+    icon: monitoring
+    url: http://localhost:8090
