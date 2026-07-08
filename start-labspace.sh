@@ -71,6 +71,11 @@ info "sbx version: $SBX_VERSION"
 export CONTENT_PATH="${CONTENT_PATH:-$(pwd)}"
 info "CONTENT_PATH set to: $CONTENT_PATH"
 
+# Pin the Compose project name so the instructions volume has a
+# deterministic name we can seed below.
+export COMPOSE_PROJECT_NAME="${COMPOSE_PROJECT_NAME:-$(basename "$PWD")}"
+info "COMPOSE_PROJECT_NAME set to: $COMPOSE_PROJECT_NAME"
+
 # ── 5. Validate compose.override.yaml exists ───────────────────
 if [ ! -f "$COMPOSE_FILE" ]; then
   error "$COMPOSE_FILE not found. Are you running from the repo root?"
@@ -102,6 +107,24 @@ elif [ -f "compose.yml" ]; then
   BASE_COMPOSE="compose.yml"
 else
   BASE_COMPOSE=""
+fi
+
+# ── 8a. Seed the instructions volume ───────────────────────────
+#   The dev-content flow copies ./ into /project but does NOT populate
+#   /labspace/instructions. Compose 'watch' (action: sync) only syncs on
+#   file *changes*, not at boot, so without this the interface crash-loops
+#   with: ENOENT /labspace/instructions/labspace.yaml. Pre-seed it so the
+#   interface finds labspace.yaml on first start; watch handles live edits.
+INSTR_VOL="${COMPOSE_PROJECT_NAME}_labspace-instructions"
+if [ -d "labspace" ]; then
+  info "Seeding instructions volume ($INSTR_VOL) from ./labspace..."
+  docker volume create "$INSTR_VOL" >/dev/null
+  docker run --rm \
+    -v "$INSTR_VOL":/instructions \
+    -v "$PWD/labspace":/src:ro \
+    alpine sh -c 'cp -a /src/. /instructions/'
+else
+  warn "No ./labspace directory found — skipping instructions seed"
 fi
 
 if [ -n "$BASE_COMPOSE" ]; then
