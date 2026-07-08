@@ -1,7 +1,7 @@
 services:
   configurator:
     environment:
-      PROJECT_CLONE_URL: https://github.com/ajeetraina/labspace-sbx
+      PROJECT_CLONE_URL: https://github.com/ajeetraina/labspace-docker-ai-governance
 
   # Dummy workspace - satisfies depends_on, Mac terminal owns port 8085
   workspace:
