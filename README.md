@@ -23,11 +23,9 @@ This labspace supports two methods for authoring and applying AI Governance poli
 1. **AI Governance API** - Drive the control plane programmatically over HTTP. Author, update, and apply policies via API calls (see Section 11). Ideal for automation, CI/CD, and infrastructure-as-code workflows.
 2. **Manual Setup** - Use the Hub Admin Console UI at `app.docker.com/admin/orgs/<your-org>` to toggle and author policy rules by hand. Ideal for getting started and for teams who prefer a visual workflow.
 
-## Quick start
+## Getting Started
 
-## Prerequisites
-
-## Prerequisites
+### Prerequisites
 
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
@@ -36,14 +34,7 @@ This labspace supports two methods for authoring and applying AI Governance poli
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
 
-
-## Prerequisites
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [ttyd](https://github.com/tsl0922/ttyd): `brew install ttyd`
-- [sbx](https://github.com/docker/sbx-releases): `brew install docker/tap/sbx`
-
-## Quick Start
+### Quick Start
 
 ```bash
 git clone https://github.com/ajeetraina/labspace-sbx
