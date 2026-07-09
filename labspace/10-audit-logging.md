@@ -29,12 +29,33 @@ Unlike `daemon.log` (under `Application Support`), audit records live under a de
 | **Linux** | `${XDG_STATE_HOME:-~/.local/state}/sandboxes/sandboxes/auditkit/` |
 | **Windows** | `%LOCALAPPDATA%\DockerSandboxes\sandboxes\logs\auditkit\` |
 
-On macOS:
+List the directory for your platform:
 
+:::conditionalDisplay{variable="os" requiredValue="mac"}
 ```bash no-run-button
 AUDIT_DIR="$HOME/Library/Logs/com.docker.sandboxes/sandboxes/auditkit"
 ls -lh "$AUDIT_DIR"
 ```
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="windows"}
+```powershell no-run-button
+$AuditDir = "$env:LOCALAPPDATA\DockerSandboxes\sandboxes\logs\auditkit"
+Get-ChildItem $AuditDir
+```
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="linux"}
+```bash no-run-button
+AUDIT_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/sandboxes/sandboxes/auditkit"
+ls -lh "$AUDIT_DIR"
+```
+:::
+
+:::conditionalDisplay{variable="os" hasNoValue}
+> [!TIP]
+> Pick your operating system in **Section 00 - Setup** to get a ready-to-run command for your platform.
+:::
 
 Files are named `audit-<utc-timestamp>-<process-uuid>-<seq>.jsonl`.
 

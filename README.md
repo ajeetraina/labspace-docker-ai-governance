@@ -29,23 +29,36 @@ This labspace supports two methods for authoring and applying AI Governance poli
 
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [ttyd](https://github.com/tsl0922/ttyd): `brew install ttyd`
-- [sbx](https://github.com/docker/sbx-releases): `brew install docker/tap/sbx`
+- [ttyd](https://github.com/tsl0922/ttyd) — `brew install ttyd` (macOS) · `sudo apt install ttyd` (Linux)
+- [sbx](https://github.com/docker/sbx-releases):
+  - **macOS** — `brew install docker/tap/sbx`
+  - **Windows** — `winget install -h Docker.sbx` (or the `DockerSandboxes.msi` from [releases](https://github.com/docker/sbx-releases/releases))
+  - **Linux** — `sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb` (or the Docker apt repo — see Section 00)
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
+
+> [!NOTE]
+> The lab content adapts to your OS: on **Section 00 - Setup** you pick macOS / Windows / Linux, and every OS-specific install command and file path in later sections switches to match.
+>
+> **Windows launcher:** use `start-labspace.ps1` from PowerShell (`pwsh -File start-labspace.ps1`). It needs [ttyd](https://github.com/tsl0922/ttyd) (`scoop install ttyd`); if you'd rather not install ttyd natively, run the Bash launcher under **WSL2** instead (`wsl bash start-labspace.sh`). `sbx` itself installs and runs natively on Windows.
 
 ### Quick Start
 
 ```bash
 git clone https://github.com/ajeetraina/labspace-sbx
 cd labspace-sbx
+
+# macOS / Linux (or WSL2 on Windows)
 bash start-labspace.sh
+
+# Windows (native PowerShell)
+pwsh -File start-labspace.ps1
 ```
 
 Open http://localhost:3030
 
 - **Left panel** → Lab instructions
-- **Right panel** → Your Mac terminal with `sbx` ready to use
+- **Right panel** → Your host terminal (macOS / Linux, or WSL2 on Windows) with `sbx` ready to use
 
 If you don't have an organization yet, you can still walk through Sections 00-02 conceptually - the demo sections (03, 04) need org-level admin access to add policy rules.
 

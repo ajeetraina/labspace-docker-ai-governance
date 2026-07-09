@@ -16,13 +16,34 @@ This section gives you two things:
 
 ## Step 1 - Locate the daemon log
 
-The sbx daemon writes JSONL audit records here:
+The sbx daemon writes JSONL audit records to a `sandboxd/daemon.log` file. Locate it for your platform:
 
+:::conditionalDisplay{variable="os" requiredValue="mac"}
+```bash no-run-button
+ls -lh "$HOME/Library/Application Support/com.docker.sandboxes/sandboxes/sandboxd/daemon.log"
+```
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="windows"}
+```powershell no-run-button
+Get-ChildItem "$env:LOCALAPPDATA\DockerSandboxes\sandboxes\logs\sandboxd\daemon.log"
+```
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="linux"}
+```bash no-run-button
+ls -lh "$HOME/.local/share/com.docker.sandboxes/sandboxes/sandboxd/daemon.log"
+```
+:::
+
+:::conditionalDisplay{variable="os" hasNoValue}
 ```bash no-run-button
 ls -lh "$HOME/Library/Application Support/com.docker.sandboxes/sandboxes/sandboxd/daemon.log"
 ```
 
-On Linux it's typically `~/.local/share/com.docker.sandboxes/sandboxes/sandboxd/daemon.log`.
+> [!TIP]
+> The path above is for macOS. On Linux it's `~/.local/share/com.docker.sandboxes/sandboxes/sandboxd/daemon.log`; on Windows it's under `%LOCALAPPDATA%\DockerSandboxes\sandboxes\logs\sandboxd\`. Pick your OS in **Section 00 - Setup** to get the exact command.
+:::
 
 ## Step 2 - Read it with `jq`
 

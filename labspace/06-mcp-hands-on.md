@@ -111,7 +111,15 @@ Setting `SBX_MCP_URL` to an absolute http/https URL does two things: it **unlock
 
 ## Step 1 - Install or upgrade `sbx`
 
-The stable Homebrew formula may lag behind on MCP features. Use the nightly tap on macOS:
+The stable release may lag behind on MCP features - use the latest build for your platform.
+
+:::conditionalDisplay{variable="os" hasNoValue}
+> [!TIP]
+> Set your operating system back in **Section 00 - Setup** to see the right install command here.
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="mac"}
+Use the nightly Homebrew tap:
 
 ```bash no-run-button
 brew install docker/tap/sbx@nightly
@@ -122,8 +130,25 @@ If you already have stable installed, switch the symlink:
 ```bash no-run-button
 brew unlink sbx 2>/dev/null; brew link --overwrite sbx@nightly
 ```
+:::
 
-On Linux or Windows, grab the latest pre-release asset from the [releases page](https://github.com/docker/sbx-releases/releases). Verify your version:
+:::conditionalDisplay{variable="os" requiredValue="windows"}
+Grab the latest pre-release `DockerSandboxes.msi` from the [releases page](https://github.com/docker/sbx-releases/releases) and install it:
+
+```powershell no-run-button
+msiexec /i DockerSandboxes.msi /quiet
+```
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="linux"}
+Grab the latest pre-release `.deb`/`.rpm` asset from the [releases page](https://github.com/docker/sbx-releases/releases) and install it, e.g.:
+
+```bash no-run-button
+sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb
+```
+:::
+
+Verify your version:
 
 ```bash no-run-button
 sbx version

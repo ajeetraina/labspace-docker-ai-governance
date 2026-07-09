@@ -233,7 +233,21 @@ op(action=fs:mount:write, resource=fs:path:/private/tmp/outside-workdemo)
 
 ✅ The sandbox **never starts**. No allow rule covers `/tmp/outside-workdemo`, default-deny applies.
 
-> Note: macOS resolves `/tmp` to `/private/tmp` - the policy engine sees the canonical path.
+:::conditionalDisplay{variable="os" requiredValue="mac"}
+> Note: macOS resolves `/tmp` to `/private/tmp` - the policy engine sees the canonical path, which is why the error above shows `/private/tmp/...`.
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="linux"}
+> Note: on Linux `/tmp` is already canonical, so the error shows `/tmp/outside-workdemo` directly (no `/private` prefix like macOS).
+:::
+
+:::conditionalDisplay{variable="os" requiredValue="windows"}
+> Note: on Windows, `sbx` runs under WSL2, so these paths are the Linux paths *inside* WSL - `/tmp` is canonical there. The policy engine always evaluates the canonical path it resolves.
+:::
+
+:::conditionalDisplay{variable="os" hasNoValue}
+> Note: the policy engine evaluates the *canonical* path. macOS resolves `/tmp` to `/private/tmp` (hence the error above); on Linux/WSL `/tmp` is already canonical.
+:::
 
 ## Step 7 - Read the results
 
