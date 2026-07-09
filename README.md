@@ -40,8 +40,6 @@ This labspace supports two methods for authoring and applying AI Governance poli
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
 
-> [!NOTE]
-> The lab content adapts to your OS: on **Section 00 - Setup** you pick macOS / Windows / Linux, and every OS-specific install command and file path in later sections switches to match.
 
 ### Quick Start (macOS / Linux)
 
@@ -59,7 +57,7 @@ Open http://localhost:3030
 ### Running on Windows
 
 > [!IMPORTANT]
-> **Run `sbx` natively on Windows — do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
+> **Run `sbx` natively on Windows, do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
 
 **Requirements:** Windows 11, x86_64. `sbx` is a standalone binary — Docker Desktop is **not** required for `sbx` itself (Docker Desktop is still needed to run the labspace UI containers).
 
