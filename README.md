@@ -28,13 +28,13 @@ This labspace supports two methods for authoring and applying AI Governance poli
 ### Prerequisites
 
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (on Windows, enable **WSL2 integration** for your distro)
-- [ttyd](https://github.com/tsl0922/ttyd) — powers the right-hand terminal panel:
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [ttyd](https://github.com/tsl0922/ttyd) — powers the embedded terminal panel (macOS/Linux only):
   - **macOS** — `brew install ttyd`
-  - **Linux / WSL2** — `sudo apt install ttyd`
-- [sbx](https://github.com/docker/sbx-releases):
+  - **Linux** — `sudo apt install ttyd`
+- [sbx](https://github.com/docker/sbx-releases) — runs **natively** on each OS using that OS's own hypervisor (Apple Hypervisor.framework / Windows Hypervisor Platform / Linux KVM):
   - **macOS** — `brew install docker/tap/sbx`
-  - **Windows** — run the lab under WSL2 and install the Linux build inside it (see **Running on Windows** below)
+  - **Windows 11 (x86_64)** — `winget install -h Docker.sbx` (see **Running on Windows** below)
   - **Linux** — `sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb` (or the Docker apt repo — see Section 00)
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
@@ -58,30 +58,35 @@ Open http://localhost:3030
 ### Running on Windows
 
 > [!IMPORTANT]
-> **The recommended path on Windows is WSL2.** The right-hand terminal is served by [`ttyd`](https://github.com/tsl0922/ttyd), which has no reliable native-Windows build. Inside WSL2 everything — `ttyd`, `sbx`, and the launcher — works exactly as it does on Linux.
+> **Run `sbx` natively on Windows — do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
 
-1. Install WSL2 and a distro (once), then open your Ubuntu shell:
+**Requirements:** Windows 11, x86_64. `sbx` is a standalone binary — Docker Desktop is **not** required for `sbx` itself (Docker Desktop is still needed to run the labspace UI containers).
+
+1. Enable the Windows Hypervisor Platform (elevated PowerShell), then reboot — this changes boot-time kernel components:
 
    ```powershell
-   wsl --install -d Ubuntu
+   Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All
    ```
 
-2. In Docker Desktop, enable **Settings → Resources → WSL Integration** for that distro.
+2. Install and log in to `sbx`:
 
-3. From the WSL2 (Ubuntu) shell, install the prerequisites and launch:
+   ```powershell
+   winget install -h Docker.sbx
+   sbx login
+   ```
 
-   ```bash
-   sudo apt update && sudo apt install -y ttyd
-   sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb   # sbx (Linux build)
+3. Start the labspace UI (needs Docker Desktop running):
+
+   ```powershell
    git clone https://github.com/ajeetraina/labspace-sbx
    cd labspace-sbx
-   bash start-labspace.sh
+   docker compose -f compose.yaml -f compose.override.yaml up
    ```
 
-Then open http://localhost:3030 in your Windows browser.
+4. Open http://localhost:3030 for the **lab instructions** (left panel), and run the `sbx` commands in your own **Windows Terminal / PowerShell** window.
 
 > [!NOTE]
-> A native PowerShell launcher (`start-labspace.ps1`) is included for users who already have `ttyd` on Windows (e.g. via `scoop install ttyd`). It mirrors `start-labspace.sh`, but because native-Windows `ttyd` is unreliable, **WSL2 above is the supported path**. Note that `sbx` under WSL2 is the Linux build — this lab exercises Linux `sbx`, which is what the demos assume.
+> **The embedded terminal panel (right side) is macOS/Linux only.** It's served by [`ttyd`](https://github.com/tsl0922/ttyd), which has no reliable native-Windows build — so on Windows the panel stays empty and you run `sbx` in a native terminal alongside the browser instructions. A best-effort PowerShell launcher, `start-labspace.ps1`, is included for users who already have `ttyd` on Windows (e.g. via `scoop install ttyd`), but it is **not** the supported path.
 
 If you don't have an organization yet, you can still walk through Sections 00-02 conceptually - the demo sections (03, 04) need org-level admin access to add policy rules.
 

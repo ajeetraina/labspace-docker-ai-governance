@@ -1,22 +1,30 @@
 <#
   start-labspace.ps1 - Launch the sbx Labspace on Windows (PowerShell)
 
-  This is the Windows equivalent of start-labspace.sh. Run it from a normal
-  PowerShell (5.1) or PowerShell 7+ (pwsh) prompt.
+  Best-effort Windows equivalent of start-labspace.sh, for users who want the
+  embedded terminal panel on Windows. Run it from a normal PowerShell (5.1) or
+  PowerShell 7+ (pwsh) prompt. See README "Running on Windows" for the
+  supported path.
+
+  IMPORTANT: sbx runs NATIVELY on Windows using the Windows Hypervisor Platform
+  (winget install -h Docker.sbx). Do NOT run sbx inside WSL2 - that would force
+  nested KVM, which Docker does not support for sbx. This script does not touch
+  that; it only launches the labspace UI + a host ttyd terminal.
 
   Prerequisites (checked on startup):
 
-    sbx:
+    sbx (native Windows, Windows 11 x86_64):
+      Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All  # then reboot
       winget install -h Docker.sbx
       # or download DockerSandboxes.msi from
       # https://github.com/docker/sbx-releases/releases
 
-    ttyd (the terminal server for the right-hand panel):
+    ttyd (serves the right-hand terminal panel):
       scoop install ttyd
-      # ttyd has no official winget package. If you don't use Scoop, the
-      # simplest path on Windows is to run the Bash launcher under WSL2:
-      #   wsl bash start-labspace.sh
-      # sbx itself still installs and runs natively on Windows.
+      # ttyd has no official winget package and native-Windows builds are
+      # unreliable. If you can't install it, skip this launcher: open the lab
+      # instructions at http://localhost:3030 in a browser and run sbx commands
+      # in your own Windows Terminal / PowerShell instead.
 
     Docker Desktop must be running (provides `docker` + `docker compose`).
 
