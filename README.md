@@ -151,3 +151,9 @@ If the stack is in a wedged state from a prior run, clear it and start fresh:
 docker compose -f compose.yaml -f compose.override.yaml down
 pwsh -File start-labspace.ps1
 ```
+
+To kill the ttyd process if it is running by any chance:
+
+```powershell
+Get-NetTCPConnection -LocalPort 8085 | Select-Object -ExpandProperty OwningProcess | ForEach-Object { Stop-Process -Id $_ -Force }
+```
