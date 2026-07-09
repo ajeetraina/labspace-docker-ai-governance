@@ -29,14 +29,14 @@ This labspace supports two methods for authoring and applying AI Governance poli
 
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [ttyd](https://github.com/tsl0922/ttyd) — powers the embedded terminal panel:
-  - **macOS** — `brew install ttyd`
-  - **Linux** — `sudo apt install ttyd`
-  - **Windows** — `scoop install ttyd` (see **Running on Windows** below)
-- [sbx](https://github.com/docker/sbx-releases) — runs **natively** on each OS using that OS's own hypervisor (Apple Hypervisor.framework / Windows Hypervisor Platform / Linux KVM):
-  - **macOS** — `brew install docker/tap/sbx`
-  - **Windows 11 (x86_64)** — `winget install -h Docker.sbx` (see **Running on Windows** below)
-  - **Linux** — `sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb` (or the Docker apt repo — see Section 00)
+- [ttyd](https://github.com/tsl0922/ttyd) â€” powers the embedded terminal panel:
+  - **macOS** â€” `brew install ttyd`
+  - **Linux** â€” `sudo apt install ttyd`
+  - **Windows** â€” `scoop install ttyd` (see **Running on Windows** below)
+- [sbx](https://github.com/docker/sbx-releases) â€” runs **natively** on each OS using that OS's own hypervisor (Apple Hypervisor.framework / Windows Hypervisor Platform / Linux KVM):
+  - **macOS** â€” `brew install docker/tap/sbx`
+  - **Windows 11 (x86_64)** â€” `winget install -h Docker.sbx` (see **Running on Windows** below)
+  - **Linux** â€” `sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb` (or the Docker apt repo â€” see Section 00)
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
 
@@ -53,17 +53,17 @@ bash start-labspace.sh
 
 Open http://localhost:3030
 
-- **Left panel** → Lab instructions
-- **Right panel** → Your host terminal with `sbx` ready to use
+- **Left panel** â†’ Lab instructions
+- **Right panel** â†’ Your host terminal with `sbx` ready to use
 
 ### Running on Windows
 
 > [!IMPORTANT]
-> **Run `sbx` natively on Windows — do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
+> **Run `sbx` natively on Windows â€” do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
 
-**Requirements:** Windows 11, x86_64. `sbx` is a standalone binary — Docker Desktop is **not** required for `sbx` itself (Docker Desktop is still needed to run the labspace UI containers).
+**Requirements:** Windows 11, x86_64. `sbx` is a standalone binary â€” Docker Desktop is **not** required for `sbx` itself (Docker Desktop is still needed to run the labspace UI containers).
 
-1. Enable the Windows Hypervisor Platform (elevated PowerShell), then reboot — this changes boot-time kernel components:
+1. Enable the Windows Hypervisor Platform (elevated PowerShell), then reboot â€” this changes boot-time kernel components:
 
    ```powershell
    Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All
@@ -93,10 +93,10 @@ Open http://localhost:3030
    docker compose -f compose.yaml -f compose.override.yaml up
    ```
 
-5. Open http://localhost:3030 — the **lab instructions** are on the left and the **PowerShell terminal** (with native `sbx`) is on the right.
+5. Open http://localhost:3030 â€” the **lab instructions** are on the left and the **PowerShell terminal** (with native `sbx`) is on the right.
 
 > [!NOTE]
-> The bundled launcher `start-labspace.ps1` automates steps 3–4 (starts `ttyd` on 8085, then `docker compose up`). It requires `ttyd` on your `PATH` (e.g. via `scoop install ttyd`).
+> The bundled launcher `start-labspace.ps1` automates steps 3â€“4 (starts `ttyd` on 8085, then `docker compose up`). It requires `ttyd` on your `PATH` (e.g. via `scoop install ttyd`).
 
 If you don't have an organization yet, you can still walk through Sections 00-02 conceptually - the demo sections (03, 04) need org-level admin access to add policy rules.
 
@@ -106,7 +106,7 @@ If you don't have an organization yet, you can still walk through Sections 00-02
 | --- | --- | --- | --- |
 | 00 | Setup | 2 min | Pick your org and verify sbx is installed |
 | 01 | Why AI Governance | 3 min | Horror stories, three pillars framing |
-| 02 | The Policy Model | 5 min | Conceptual: two policy-authoring paths (Hub Admin Console + Governance API) and how org → developer policy flow works |
+| 02 | The Policy Model | 5 min | Conceptual: two policy-authoring paths (Hub Admin Console + Governance API) and how org â†’ developer policy flow works |
 | 03 | Network Enforcement Demo | 10 min | Three `curl` commands, three outcomes (allow / deny / default-deny) |
 | 04 | Filesystem Enforcement Demo | 10 min | Three `sbx run` attempts, same three outcomes |
 | 07 | Product Catalog | 15 min | Turn an autonomous coding agent loose on a real Node.js app, contained by your policies |
@@ -121,13 +121,39 @@ Total walkthrough: ~110 minutes.
 
 ## Troubleshooting
 
-In case you face issue related to ttyd:
+### `ttyd` port already in use
 
 ```
 ERROR: ttyd failed to start on port 8085
 ```
 
-Just try to use `lsof -i :8085` to find the existing ttyd process ID and kill it using `kill` command. Restart the start-labspace script.
+Find the existing ttyd process and kill it, then restart the launcher:
 
+- **macOS / Linux** â€” `lsof -i :8085` â†’ `kill <PID>`
+- **Windows (PowerShell)** â€” `Get-NetTCPConnection -LocalPort 8085 | Select-Object OwningProcess` â†’ `Stop-Process -Id <PID> -Force`
 
+### Windows: `ttyd` (`:8085`) is up but the Labspace UI (`:3030`) never appears
 
+Symptom: `docker ps` shows `labspace-docker-ai-governance-interface-1` (and the other Labspace containers) in **`Created`** status instead of **`Up`**. On Windows, `docker compose up` occasionally creates the stack's containers via the OCI provider but doesn't actually start them, so nothing binds `:3030`.
+
+Fix â€” from a second PowerShell window in the repo root, start what compose already created:
+
+```powershell
+docker compose -f compose.yaml -f compose.override.yaml start
+```
+
+Then re-open http://localhost:3030. If a specific container is still stuck, start it directly:
+
+```powershell
+docker start labspace-docker-ai-governance-interface-1 `
+             labspace-docker-ai-governance-configurator-1 `
+             labspace-docker-ai-governance-workspace-1 `
+             labspace-docker-ai-governance-host-republisher-1
+```
+
+If the stack is in a wedged state from a prior run, clear it and start fresh:
+
+```powershell
+docker compose -f compose.yaml -f compose.override.yaml down
+pwsh -File start-labspace.ps1
+```
