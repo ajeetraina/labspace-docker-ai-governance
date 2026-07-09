@@ -122,6 +122,15 @@ if (-not (Test-Path $ComposeFile)) {
   Write-ErrorAndExit "$ComposeFile not found. Are you running from the repo root?"
 }
 
+# -- 5b. Check Docker is running (needed for seed + compose) ------
+#   Fail fast here, before we start ttyd, so we don't leave a stray
+#   terminal running if Docker Desktop isn't up.
+docker info *> $null
+if ($LASTEXITCODE -ne 0) {
+  Write-ErrorAndExit 'Docker is not responding. Start Docker Desktop and wait until it is running, then re-run this script.'
+}
+Write-Info 'Docker is running'
+
 # -- 6. Clear port -----------------------------------------------
 Write-Info "Clearing port $TtydPort..."
 try {
@@ -157,15 +166,24 @@ foreach ($candidate in @('docker-compose.yml', 'compose.yaml', 'compose.yml')) {
 #   The dev-content flow copies ./ into /project but does NOT populate
 #   /labspace/instructions, and Compose 'watch' only syncs on file *changes*.
 #   Pre-seed so the interface finds labspace.yaml on first start.
+#
+#   NOTE: use `docker cp` (not a bind-mount) to copy ./labspace into the
+#   volume. A Windows source path like C:\...\labspace has a drive-letter
+#   colon that breaks Docker's `-v src:dst:mode` parsing; `docker cp` takes
+#   the host path as a plain argument, so it's portable across OSes.
 $InstrVol = "$($env:COMPOSE_PROJECT_NAME)_labspace-instructions"
 if (Test-Path 'labspace') {
   Write-Info "Seeding instructions volume ($InstrVol) from ./labspace..."
-  docker volume create $InstrVol | Out-Null
-  $labspacePath = (Resolve-Path 'labspace').Path
-  docker run --rm `
-    -v "${InstrVol}:/instructions" `
-    -v "${labspacePath}:/src:ro" `
-    alpine sh -c 'cp -a /src/. /instructions/'
+  try {
+    docker volume create $InstrVol | Out-Null
+    docker rm -f labspace-seed 2>$null | Out-Null
+    docker create --name labspace-seed -v "${InstrVol}:/instructions" alpine true | Out-Null
+    docker cp "./labspace/." labspace-seed:/instructions/
+    docker rm -f labspace-seed | Out-Null
+  } catch {
+    Write-Warn "Instructions seed failed: $($_.Exception.Message)"
+    Write-Warn 'Continuing anyway - the interface may need a moment (or a restart) to sync.'
+  }
 } else {
   Write-Warn 'No ./labspace directory found - skipping instructions seed'
 }
