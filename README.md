@@ -28,37 +28,60 @@ This labspace supports two methods for authoring and applying AI Governance poli
 ### Prerequisites
 
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [ttyd](https://github.com/tsl0922/ttyd) — `brew install ttyd` (macOS) · `sudo apt install ttyd` (Linux)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (on Windows, enable **WSL2 integration** for your distro)
+- [ttyd](https://github.com/tsl0922/ttyd) — powers the right-hand terminal panel:
+  - **macOS** — `brew install ttyd`
+  - **Linux / WSL2** — `sudo apt install ttyd`
 - [sbx](https://github.com/docker/sbx-releases):
   - **macOS** — `brew install docker/tap/sbx`
-  - **Windows** — `winget install -h Docker.sbx` (or the `DockerSandboxes.msi` from [releases](https://github.com/docker/sbx-releases/releases))
+  - **Windows** — run the lab under WSL2 and install the Linux build inside it (see **Running on Windows** below)
   - **Linux** — `sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb` (or the Docker apt repo — see Section 00)
 - **Admin access** to a Docker Hub organization with AI Governance enabled
 - **A logged-in Docker CLI** (`docker login` with your org credentials)
 
 > [!NOTE]
 > The lab content adapts to your OS: on **Section 00 - Setup** you pick macOS / Windows / Linux, and every OS-specific install command and file path in later sections switches to match.
->
-> **Windows launcher:** use `start-labspace.ps1` from PowerShell (`pwsh -File start-labspace.ps1`). It needs [ttyd](https://github.com/tsl0922/ttyd) (`scoop install ttyd`); if you'd rather not install ttyd natively, run the Bash launcher under **WSL2** instead (`wsl bash start-labspace.sh`). `sbx` itself installs and runs natively on Windows.
 
-### Quick Start
+### Quick Start (macOS / Linux)
 
 ```bash
 git clone https://github.com/ajeetraina/labspace-sbx
 cd labspace-sbx
-
-# macOS / Linux (or WSL2 on Windows)
 bash start-labspace.sh
-
-# Windows (native PowerShell)
-pwsh -File start-labspace.ps1
 ```
 
 Open http://localhost:3030
 
 - **Left panel** → Lab instructions
-- **Right panel** → Your host terminal (macOS / Linux, or WSL2 on Windows) with `sbx` ready to use
+- **Right panel** → Your host terminal with `sbx` ready to use
+
+### Running on Windows
+
+> [!IMPORTANT]
+> **The recommended path on Windows is WSL2.** The right-hand terminal is served by [`ttyd`](https://github.com/tsl0922/ttyd), which has no reliable native-Windows build. Inside WSL2 everything — `ttyd`, `sbx`, and the launcher — works exactly as it does on Linux.
+
+1. Install WSL2 and a distro (once), then open your Ubuntu shell:
+
+   ```powershell
+   wsl --install -d Ubuntu
+   ```
+
+2. In Docker Desktop, enable **Settings → Resources → WSL Integration** for that distro.
+
+3. From the WSL2 (Ubuntu) shell, install the prerequisites and launch:
+
+   ```bash
+   sudo apt update && sudo apt install -y ttyd
+   sudo apt install ./DockerSandboxes-linux-amd64-ubuntu2604.deb   # sbx (Linux build)
+   git clone https://github.com/ajeetraina/labspace-sbx
+   cd labspace-sbx
+   bash start-labspace.sh
+   ```
+
+Then open http://localhost:3030 in your Windows browser.
+
+> [!NOTE]
+> A native PowerShell launcher (`start-labspace.ps1`) is included for users who already have `ttyd` on Windows (e.g. via `scoop install ttyd`). It mirrors `start-labspace.sh`, but because native-Windows `ttyd` is unreliable, **WSL2 above is the supported path**. Note that `sbx` under WSL2 is the Linux build — this lab exercises Linux `sbx`, which is what the demos assume.
 
 If you don't have an organization yet, you can still walk through Sections 00-02 conceptually - the demo sections (03, 04) need org-level admin access to add policy rules.
 
