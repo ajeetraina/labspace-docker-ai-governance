@@ -45,7 +45,7 @@ This labspace supports two methods for authoring and applying AI Governance poli
 
 ```bash
 git clone https://github.com/ajeetraina/labspace-docker-ai-governance
-cd labspace-sbx
+cd labspace-docker-ai-governance
 bash start-labspace.sh
 ```
 
