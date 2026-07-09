@@ -56,10 +56,6 @@ Open http://localhost:3030
 
 ### Running on Windows
 
-> [!IMPORTANT]
-> **Run `sbx` natively on Windows, do not run it inside WSL2.** `sbx` boots each sandbox as a **microVM on the Windows Hypervisor Platform (WHP)**, a sibling of the WSL2 utility VM on the same host hypervisor. Running the *Linux* `sbx` build inside a WSL2 distro would instead require **nested KVM**, which Docker does not support for `sbx` (KVM needs bare metal). Native is the supported path.
-
-**Requirements:** Windows 11, x86_64. `sbx` is a standalone binary — Docker Desktop is **not** required for `sbx` itself (Docker Desktop is still needed to run the labspace UI containers).
 
 1. Enable the Windows Hypervisor Platform (elevated PowerShell), then reboot — this changes boot-time kernel components:
 
