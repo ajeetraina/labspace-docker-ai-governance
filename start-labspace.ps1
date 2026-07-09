@@ -21,10 +21,10 @@
 
     ttyd (serves the right-hand terminal panel):
       scoop install ttyd
-      # ttyd has no official winget package and native-Windows builds are
-      # unreliable. If you can't install it, skip this launcher: open the lab
-      # instructions at http://localhost:3030 in a browser and run sbx commands
-      # in your own Windows Terminal / PowerShell instead.
+      # ttyd has no official winget package, so install it via Scoop. If you'd
+      # rather not, skip this launcher: open the lab instructions at
+      # http://localhost:3030 in a browser and run sbx commands in your own
+      # Windows Terminal / PowerShell instead.
 
     Docker Desktop must be running (provides `docker` + `docker compose`).
 
@@ -133,10 +133,12 @@ Start-Sleep -Seconds 1
 
 # -- 7. Start ttyd -----------------------------------------------
 Write-Info "Starting terminal on port $TtydPort..."
-# Expose a PowerShell shell in the right-hand panel (the Bash version uses zsh).
-$ttydShell = if (Get-Command pwsh -ErrorAction SilentlyContinue) { 'pwsh' } else { 'powershell' }
-$ttydProc  = Start-Process -FilePath 'ttyd' `
-  -ArgumentList @('-p', "$TtydPort", '--writable', '--max-clients', '4', $ttydShell) `
+# Expose Windows PowerShell in the right-hand panel, cwd = user home. Use
+# powershell.exe (always present) rather than pwsh (PowerShell 7, optional).
+# Verified working invocation:
+#   ttyd -W -p 8085 -w C:\Users\<you> powershell.exe
+$ttydProc = Start-Process -FilePath 'ttyd' `
+  -ArgumentList @('-W', '-p', "$TtydPort", '-w', "$env:USERPROFILE", 'powershell.exe') `
   -PassThru -WindowStyle Hidden
 Start-Sleep -Seconds 1
 

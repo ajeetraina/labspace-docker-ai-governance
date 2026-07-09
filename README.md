@@ -29,9 +29,10 @@ This labspace supports two methods for authoring and applying AI Governance poli
 
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [ttyd](https://github.com/tsl0922/ttyd) — powers the embedded terminal panel (macOS/Linux only):
+- [ttyd](https://github.com/tsl0922/ttyd) — powers the embedded terminal panel:
   - **macOS** — `brew install ttyd`
   - **Linux** — `sudo apt install ttyd`
+  - **Windows** — `scoop install ttyd` (see **Running on Windows** below)
 - [sbx](https://github.com/docker/sbx-releases) — runs **natively** on each OS using that OS's own hypervisor (Apple Hypervisor.framework / Windows Hypervisor Platform / Linux KVM):
   - **macOS** — `brew install docker/tap/sbx`
   - **Windows 11 (x86_64)** — `winget install -h Docker.sbx` (see **Running on Windows** below)
@@ -75,7 +76,16 @@ Open http://localhost:3030
    sbx login
    ```
 
-3. Start the labspace UI (needs Docker Desktop running):
+3. Install [`ttyd`](https://github.com/tsl0922/ttyd) (serves the right-hand terminal panel) and start it on port 8085, running native PowerShell where `sbx` is available:
+
+   ```powershell
+   scoop install ttyd
+   ttyd -W -p 8085 -w $env:USERPROFILE powershell.exe
+   ```
+
+   > `-W` allows input (writable), `-p 8085` is the port the labspace panel connects to, and `-w $env:USERPROFILE` sets the working directory to your home folder (equivalent to `C:\Users\<you>`).
+
+4. In a second PowerShell window, start the labspace UI (needs Docker Desktop running):
 
    ```powershell
    git clone https://github.com/ajeetraina/labspace-sbx
@@ -83,10 +93,10 @@ Open http://localhost:3030
    docker compose -f compose.yaml -f compose.override.yaml up
    ```
 
-4. Open http://localhost:3030 for the **lab instructions** (left panel), and run the `sbx` commands in your own **Windows Terminal / PowerShell** window.
+5. Open http://localhost:3030 — the **lab instructions** are on the left and the **PowerShell terminal** (with native `sbx`) is on the right.
 
 > [!NOTE]
-> **The embedded terminal panel (right side) is macOS/Linux only.** It's served by [`ttyd`](https://github.com/tsl0922/ttyd), which has no reliable native-Windows build — so on Windows the panel stays empty and you run `sbx` in a native terminal alongside the browser instructions. A best-effort PowerShell launcher, `start-labspace.ps1`, is included for users who already have `ttyd` on Windows (e.g. via `scoop install ttyd`), but it is **not** the supported path.
+> The bundled launcher `start-labspace.ps1` automates steps 3–4 (starts `ttyd` on 8085, then `docker compose up`). It requires `ttyd` on your `PATH` (e.g. via `scoop install ttyd`).
 
 If you don't have an organization yet, you can still walk through Sections 00-02 conceptually - the demo sections (03, 04) need org-level admin access to add policy rules.
 
