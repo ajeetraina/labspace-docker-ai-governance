@@ -71,9 +71,15 @@ sections:
     contentPath: 05-whats-next.md
 
 # Extra tabs in the right-hand panel. The default "IDE" tab is the primary
-# terminal (ttyd on :8085). Each service below becomes an additional clickable
-# tab. Observability embeds the live sbx/MCP dashboard.
+# terminal (Term 1, ttyd on :8085). Each service below becomes an additional
+# clickable tab. Term 2 is a second, independent host terminal (ttyd on :8087,
+# started by start-labspace.sh) so labs can run commands in parallel — e.g.
+# Term 1 for `sbx run ...` while Term 2 tails daemon.log / runs `sbx policy ls`.
+# Observability embeds the live sbx/MCP dashboard.
 services:
+  - title: Terminal 2
+    icon: terminal
+    url: http://localhost:8087
   - title: Observability
     icon: monitoring
     url: http://localhost:8090

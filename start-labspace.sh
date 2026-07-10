@@ -18,7 +18,8 @@
 
 set -e
 
-TTYD_PORT=8085
+TTYD_PORT=8085     # Term 1 (primary — the interface's built-in IDE tab)
+TTYD_PORT2=8087    # Term 2 (second terminal, surfaced as an extra tab)
 COMPOSE_FILE="compose.override.yaml"
 
 # ── Color helpers ──────────────────────────────────────────────
@@ -94,21 +95,32 @@ if [ ! -f "$COMPOSE_FILE" ]; then
   error "$COMPOSE_FILE not found. Are you running from the repo root?"
 fi
 
-# ── 6. Clear port ──────────────────────────────────────────────
-info "Clearing port $TTYD_PORT..."
-lsof -ti tcp:$TTYD_PORT | xargs kill -9 2>/dev/null || true
+# ── 6. Clear ports ─────────────────────────────────────────────
+info "Clearing ports $TTYD_PORT and $TTYD_PORT2..."
+lsof -ti tcp:$TTYD_PORT  | xargs kill -9 2>/dev/null || true
+lsof -ti tcp:$TTYD_PORT2 | xargs kill -9 2>/dev/null || true
 sleep 1
 
-# ── 7. Start ttyd ──────────────────────────────────────────────
-info "Starting terminal on port $TTYD_PORT..."
+# ── 7. Start terminals ─────────────────────────────────────────
+#   Two independent ttyd instances so the lab can run host commands in
+#   parallel (e.g. Term 1 for `sbx run ...`, Term 2 for `sbx policy ls`
+#   / tailing daemon.log). Term 1 is the interface's built-in IDE tab;
+#   Term 2 is surfaced as an extra tab via labspace.yaml services.
+info "Starting Term 1 on port $TTYD_PORT..."
 ttyd -p $TTYD_PORT --writable --max-clients 4 zsh &
 TTYD_PID=$!
+info "Starting Term 2 on port $TTYD_PORT2..."
+ttyd -p $TTYD_PORT2 --writable --max-clients 4 zsh &
+TTYD_PID2=$!
 sleep 1
 
 if ! lsof -ti tcp:$TTYD_PORT &>/dev/null; then
-  error "ttyd failed to start on port $TTYD_PORT"
+  error "ttyd (Term 1) failed to start on port $TTYD_PORT"
 fi
-info "ttyd PID: $TTYD_PID"
+if ! lsof -ti tcp:$TTYD_PORT2 &>/dev/null; then
+  error "ttyd (Term 2) failed to start on port $TTYD_PORT2"
+fi
+info "ttyd PIDs: Term 1=$TTYD_PID, Term 2=$TTYD_PID2"
 
 # ── 8. Start Labspace (use local compose file if present, ───────
 #       otherwise fall back to OCI reference)  ──────────────────
@@ -169,6 +181,7 @@ cleanup() {
   echo ""
   info "Stopping..."
   kill $TTYD_PID 2>/dev/null || true
+  kill $TTYD_PID2 2>/dev/null || true
   if [ -n "$BASE_COMPOSE" ]; then
     docker compose \
       -f "$BASE_COMPOSE" \

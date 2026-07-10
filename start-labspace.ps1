@@ -34,7 +34,8 @@
 
 $ErrorActionPreference = 'Stop'
 
-$TtydPort    = 8085
+$TtydPort    = 8085   # Term 1 (primary — the interface's built-in IDE tab)
+$TtydPort2   = 8087   # Term 2 (second terminal, surfaced as an extra tab)
 $ComposeFile = 'compose.override.yaml'
 
 # -- Color helpers ------------------------------------------------
@@ -131,30 +132,41 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Info 'Docker is running'
 
-# -- 6. Clear port -----------------------------------------------
-Write-Info "Clearing port $TtydPort..."
-try {
-  Get-NetTCPConnection -LocalPort $TtydPort -ErrorAction SilentlyContinue |
-    Select-Object -ExpandProperty OwningProcess -Unique |
-    ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }
-} catch { }
+# -- 6. Clear ports ----------------------------------------------
+Write-Info "Clearing ports $TtydPort and $TtydPort2..."
+foreach ($p in @($TtydPort, $TtydPort2)) {
+  try {
+    Get-NetTCPConnection -LocalPort $p -ErrorAction SilentlyContinue |
+      Select-Object -ExpandProperty OwningProcess -Unique |
+      ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }
+  } catch { }
+}
 Start-Sleep -Seconds 1
 
-# -- 7. Start ttyd -----------------------------------------------
-Write-Info "Starting terminal on port $TtydPort..."
+# -- 7. Start terminals ------------------------------------------
 # Expose Windows PowerShell in the right-hand panel, cwd = user home. Use
 # powershell.exe (always present) rather than pwsh (PowerShell 7, optional).
+# Two independent ttyd instances so the lab can run host commands in parallel
+# (Term 1 = built-in IDE tab; Term 2 = extra tab via labspace.yaml services).
 # Verified working invocation:
 #   ttyd -W -p 8085 -w C:\Users\<you> powershell.exe
+Write-Info "Starting Term 1 on port $TtydPort..."
 $ttydProc = Start-Process -FilePath 'ttyd' `
   -ArgumentList @('-W', '-p', "$TtydPort", '-w', "$env:USERPROFILE", 'powershell.exe') `
+  -PassThru -WindowStyle Hidden
+Write-Info "Starting Term 2 on port $TtydPort2..."
+$ttydProc2 = Start-Process -FilePath 'ttyd' `
+  -ArgumentList @('-W', '-p', "$TtydPort2", '-w', "$env:USERPROFILE", 'powershell.exe') `
   -PassThru -WindowStyle Hidden
 Start-Sleep -Seconds 1
 
 if (-not (Get-NetTCPConnection -LocalPort $TtydPort -ErrorAction SilentlyContinue)) {
-  Write-ErrorAndExit "ttyd failed to start on port $TtydPort"
+  Write-ErrorAndExit "ttyd (Term 1) failed to start on port $TtydPort"
 }
-Write-Info "ttyd PID: $($ttydProc.Id)"
+if (-not (Get-NetTCPConnection -LocalPort $TtydPort2 -ErrorAction SilentlyContinue)) {
+  Write-ErrorAndExit "ttyd (Term 2) failed to start on port $TtydPort2"
+}
+Write-Info "ttyd PIDs: Term 1=$($ttydProc.Id), Term 2=$($ttydProc2.Id)"
 
 # -- 8. Pick base compose file (local, else OCI reference) -------
 $BaseCompose = $null
@@ -215,6 +227,9 @@ try {
   Write-Info 'Stopping...'
   if ($ttydProc -and -not $ttydProc.HasExited) {
     Stop-Process -Id $ttydProc.Id -Force -ErrorAction SilentlyContinue
+  }
+  if ($ttydProc2 -and -not $ttydProc2.HasExited) {
+    Stop-Process -Id $ttydProc2.Id -Force -ErrorAction SilentlyContinue
   }
   try { docker compose @composeArgs down 2>$null } catch { }
 }
