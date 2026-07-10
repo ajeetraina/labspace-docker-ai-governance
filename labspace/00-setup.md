@@ -49,7 +49,16 @@ brew install docker/tap/sbx
 :::
 
 :::conditionalDisplay{variable="os" requiredValue="windows"}
-Install with WinGet:
+> [!IMPORTANT]
+> `sbx` runs **natively** on Windows 11 (x86_64) using the Windows Hypervisor Platform - **not** inside WSL2. Enable the platform first, then reboot before installing.
+
+First enable the Windows Hypervisor Platform (elevated PowerShell), then **reboot** - this changes boot-time kernel components:
+
+```powershell no-run-button
+Enable-WindowsOptionalFeature -Online -FeatureName HypervisorPlatform -All
+```
+
+After rebooting, install with WinGet:
 
 ```powershell no-run-button
 winget install -h Docker.sbx

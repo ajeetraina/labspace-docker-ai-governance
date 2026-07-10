@@ -112,7 +112,7 @@ fi
 Then run the helper scoped to the filesystem domain:
 
 ```bash no-run-button
-curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-ai-governance/main/labspace/assets/setup-policies.sh -o setup-policies.sh
+curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-docker-ai-governance/main/labspace/assets/setup-policies.sh -o setup-policies.sh
 bash setup-policies.sh filesystem
 ```
 

@@ -184,7 +184,7 @@ The open-source [`docker/mcp-gateway`](https://github.com/docker/mcp-gateway) is
 
 ```bash no-run-button
 mkdir -p ~/workdemo/mcp-gateway-lab && cd ~/workdemo/mcp-gateway-lab
-curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-ai-governance/main/labspace/assets/mcp-gateway-compose.yaml -o compose.yaml
+curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-docker-ai-governance/main/labspace/assets/mcp-gateway-compose.yaml -o compose.yaml
 docker compose up -d
 ```
 
@@ -319,6 +319,46 @@ summary and 3 key facts. Tell me which tool(s) you called.
 ```
 
 A tool-call line such as `mcp-gateway · search_wikipedia` (approve it if prompted) and an answer drawn from the live article confirm the **complete chain**: `sbx → mcp-gateway → local-wiki → Wikipedia`, every call through the governed gateway.
+
+> [!WARNING]
+> **If every tool call is denied — this is expected when MCP governance is on.**
+> MCP tool invocation is governed by the **same fail-closed, default-deny** engine as
+> network and filesystem. With org governance active and **no MCP policy yet**, every
+> call is blocked and the agent reports something like:
+>
+> ```
+> MCP error 0: policy denied local-wiki/search_wikipedia: implicit
+> ```
+>
+> and the daemon log (`sandboxd/daemon.log`) shows:
+>
+> ```
+> mcp policy: denied  action=invokeTool server=local-wiki target=search_wikipedia reason=implicit
+> ```
+>
+> `reason=implicit` means *no MCP policy permits this server's tools* — not a bug, the
+> default-deny posture doing its job. There is **no local unblock**: `sbx policy allow`
+> only supports `network`, and `sbx mcp auth` is OAuth for remote servers, not a policy.
+> The **only** way to permit the tools is an **MCP access policy in Docker Hub** (the
+> Cedar document from *Govern it* below), synced down with `sbx policy reset`.
+>
+> Add this policy — **AI governance → MCP policy → Create policy**, scope **Organization**:
+>
+> ```cedar
+> permit(
+>   principal,
+>   action == MCP::Action::"invoke",
+>   resource is MCP::Tool
+> )
+> when {
+>   resource.server == "local-wiki"
+> };
+> ```
+>
+> Then `sbx policy reset` (choose Balanced), confirm with `sbx policy ls | grep -i mcp`,
+> and re-run the prompt. The `denied … implicit` lines become allowed invocations.
+> To pin exact tools instead of the whole server, add
+> `&& ["search_wikipedia","get_summary"].contains(resource.name)` to the `when` clause.
 
 ## Step 6 - Clean up
 

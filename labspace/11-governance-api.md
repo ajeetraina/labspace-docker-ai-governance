@@ -285,4 +285,4 @@ This is the satisfying close of the loop: a rule you `POST`ed to Hub shows up as
 - "Deny always wins" and the ~5-minute propagation are the same guarantees, regardless of whether a human or a pipeline made the change
 - You can now put governance in version control and apply it from CI - the foundation for governance-as-code
 
-The [`setup-policies.sh`](https://github.com/ajeetraina/labspace-ai-governance/blob/main/labspace/assets/setup-policies.sh) helper offered in Sections 03 and 04 is a minimal, idempotent reference for all of the above - fork it as the starting point for your own pipeline.
+The [`setup-policies.sh`](https://github.com/ajeetraina/labspace-docker-ai-governance/blob/main/labspace/assets/setup-policies.sh) helper offered in Sections 03 and 04 is a minimal, idempotent reference for all of the above - fork it as the starting point for your own pipeline.

@@ -16,7 +16,7 @@ The point: governance isn't four separate features you remember to turn on. It's
 
 ## The scenario - one agent, four attacks
 
-Picture a prompt-injected coding agent. Its hidden instructions tell it to do what the [horror-story agent](https://github.com/ajeetraina/labspace-ai-governance/blob/main/project/horror-story-agent/inventory.sh) from Section 01 catalogued:
+Picture a prompt-injected coding agent. Its hidden instructions tell it to do what the [horror-story agent](https://github.com/ajeetraina/labspace-docker-ai-governance/blob/main/project/horror-story-agent/inventory.sh) from Section 01 catalogued:
 
 1. **Read** your SSH and cloud credentials off disk (`~/.ssh`, `~/.aws`)
 2. **Exfiltrate** them to a paste site (`paste.ee`)
@@ -31,7 +31,7 @@ First, see what the agent *would* have on an ungoverned machine. The inventory s
 
 ```bash no-run-button
 mkdir -p ~/workdemo/capstone && cd ~/workdemo/capstone
-curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-ai-governance/main/project/horror-story-agent/inventory.sh -o inventory.sh
+curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-docker-ai-governance/main/project/horror-story-agent/inventory.sh -o inventory.sh
 bash inventory.sh
 ```
 

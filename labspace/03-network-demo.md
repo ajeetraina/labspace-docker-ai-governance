@@ -102,6 +102,16 @@ After this, the final rule list should have exactly **three rules**:
 
 The **Docker AI Governance API** (covered end-to-end in the Governance API section) creates the exact same rules from your terminal. A helper script wraps the `curl` calls so you provision everything in one shot - the foundation for governance-as-code.
 
+> [!IMPORTANT]
+> **Enable the AI governance toggle first — the script won't do it for you.**
+> The API happily creates policies whether or not the feature is switched on, but
+> they stay **dormant** until you enable AI governance for the org. Skip this and
+> the classic symptom is Step 4 returning **`anthropic: 403`** even though
+> `sbx policy ls` looks empty of your rules — the policy exists in Hub but was
+> never synced or enforced.
+>
+> Open **[app.docker.com/accounts/$$org$$](https://app.docker.com/accounts/$$org$$)** → **AI governance** and confirm the toggle is **ON** before running the script. (The Admin Console path enables it as part of its own flow.)
+
 ### Get an admin token
 
 All API calls use a JWT bearer token tied to an org owner/admin. Exchange a Personal Access Token (preferred) or your password for one.
@@ -136,7 +146,7 @@ fi
 Download and run the helper. With no argument it provisions **both** the network and filesystem policies, so a single run covers Section 03 **and** Section 04:
 
 ```bash no-run-button
-curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-ai-governance/main/labspace/assets/setup-policies.sh -o setup-policies.sh
+curl -fsSL https://raw.githubusercontent.com/ajeetraina/labspace-docker-ai-governance/main/labspace/assets/setup-policies.sh -o setup-policies.sh
 bash setup-policies.sh
 ```
 
@@ -177,6 +187,26 @@ You should see:
 - Several `default-*` rules marked `inactive - corporate policy takes precedence`
 
 That last line is the central control proof. Even though sbx ships with sensible defaults, the org policy is overriding them.
+
+> [!TIP]
+> **The full `sbx policy ls` output gets long** once your org has accumulated rules from earlier experiments. Filter it to just what you care about:
+>
+> ```bash no-run-button
+> # Show only network rules (drop the filesystem rows)
+> sbx policy ls | grep -iE "network|PROVENANCE|Governance|Sync"
+> ```
+>
+> ```bash no-run-button
+> # The practical one: "is Anthropic allowed?"
+> sbx policy ls | grep -i anthropic
+> ```
+>
+> ```bash no-run-button
+> # See a specific host (or a few) across all rules
+> sbx policy ls | grep -iE "paste|anthropic|docker"
+> ```
+>
+> If `grep -i anthropic` returns a row with `api.anthropic.com:443` and `remote`, your allow rule synced — the network test in Step 4 will let Anthropic through.
 
 ## Step 3 - Spin up a sandbox
 
@@ -225,14 +255,31 @@ curl -sS https://example.com -o /dev/null -w "example.com: %{http_code}\n"
 Expected output (codes may vary slightly):
 
 ```
-anthropic: 200
+anthropic: 404
 paste.ee: 403
 example.com: 403
 ```
 
+> [!NOTE]
+> **`anthropic: 404` is the success signal here, not an error.**
+> `https://api.anthropic.com` (the bare root, no path) genuinely returns `404` from
+> Anthropic's server — there's no resource at `/`, so Anthropic answers "not found."
+> The `200` some earlier docs showed was simply inaccurate; a plain GET to that root
+> has never had a `200` handler. (You only get `200` from real API paths with a
+> valid request + key.)
+>
+> What matters for this demo is **404 vs 403**, not the exact number:
+>
+> - **404** (or `401`, `405` — any non-`403` origin reply) = you *reached* Anthropic's
+>   server → the **sbx proxy allowed** it, because `allow AI services` covers it.
+> - **403** = the **sbx proxy refused** the request before it ever left the sandbox.
+>
+> If you see `anthropic: 403`, your allow rule isn't active: confirm with
+> `sbx policy ls | grep -i anthropic` and that the AI governance toggle is on.
+
 | Destination | Code | What it means |
 | --- | --- | --- |
-| `api.anthropic.com` | 200 or 404 | The connection reached Anthropic's servers. The point is the **sbx proxy let it through** because `allow AI services` covers it. |
+| `api.anthropic.com` | 404 (or 401/405) | The connection reached Anthropic's servers — the bare root has no handler, so Anthropic replies `404`. The point is the **sbx proxy let it through** because `allow AI services` covers it. Any non-`403` origin reply proves it. |
 | `paste.ee` | 403 | The **sbx proxy refused** the request. paste.ee never received the connection. Your `deny exfiltration` rule blocked it. |
 | `example.com` | 403 | The **sbx proxy refused** the request. No allow rule covers it, so the default-deny posture catches it. |
 

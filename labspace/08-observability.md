@@ -90,7 +90,7 @@ The audit log answers *what was decided and why*, with sandbox attribution on so
 `start-labspace.sh` already brought up the dashboard alongside the labspace UI - it's the embedded panel at the top of this section. If you'd rather run it standalone (e.g., from a different machine, or without the labspace UI), the kit at `labspace/kits/observability/` ships an identical compose file:
 
 ```bash no-run-button
-cd ~/workdemo/labspace-ai-governance/labspace/kits/observability
+cd ~/workdemo/labspace-docker-ai-governance/labspace/kits/observability
 docker compose --profile with-gateway up -d --build
 ```
 

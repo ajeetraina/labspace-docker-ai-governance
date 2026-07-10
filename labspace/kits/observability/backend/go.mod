@@ -1,4 +1,4 @@
-module github.com/ajeetraina/labspace-ai-governance/observability
+module github.com/ajeetraina/labspace-docker-ai-governance/observability
 
 go 1.25
 
