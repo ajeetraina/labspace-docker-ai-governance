@@ -1,0 +1,4 @@
+# Lab artifacts downloaded during testing (the canonical copies live in
+# labspace/assets/). The leading slash scopes these to the repo root so the
+# tracked originals under labspace/assets/ are unaffected.
+/setup-policies.sh
