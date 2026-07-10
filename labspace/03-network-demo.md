@@ -103,14 +103,7 @@ After this, the final rule list should have exactly **three rules**:
 The **Docker AI Governance API** (covered end-to-end in the Governance API section) creates the exact same rules from your terminal. A helper script wraps the `curl` calls so you provision everything in one shot - the foundation for governance-as-code.
 
 > [!IMPORTANT]
-> **Enable the AI governance toggle first — the script won't do it for you.**
-> The API happily creates policies whether or not the feature is switched on, but
-> they stay **dormant** until you enable AI governance for the org. Skip this and
-> the classic symptom is Step 4 returning **`anthropic: 403`** even though
-> `sbx policy ls` looks empty of your rules — the policy exists in Hub but was
-> never synced or enforced.
->
-> Open **[app.docker.com/accounts/$$org$$](https://app.docker.com/accounts/$$org$$)** → **AI governance** and confirm the toggle is **ON** before running the script. (The Admin Console path enables it as part of its own flow.)
+> **Enable the AI governance toggle first.** The API creates policies even when the feature is off, but they stay dormant until you enable it — the tell-tale symptom is Step 4 returning `anthropic: 403`. Open **[app.docker.com/accounts/$$org$$](https://app.docker.com/accounts/$$org$$)** → **AI governance** and confirm the toggle is **ON** before running the script.
 
 ### Get an admin token
 
@@ -189,24 +182,15 @@ You should see:
 That last line is the central control proof. Even though sbx ships with sensible defaults, the org policy is overriding them.
 
 > [!TIP]
-> **The full `sbx policy ls` output gets long** once your org has accumulated rules from earlier experiments. Filter it to just what you care about:
+> `sbx policy ls` gets long once your org has many rules. Filter it:
 >
 > ```bash no-run-button
-> # Show only network rules (drop the filesystem rows)
-> sbx policy ls | grep -iE "network|PROVENANCE|Governance|Sync"
+> sbx policy ls | grep -i anthropic                          # is Anthropic allowed?
+> sbx policy ls | grep -iE "network|PROVENANCE|Governance"   # network rules only
+> sbx policy ls | grep -iE "paste|anthropic|docker"          # specific hosts
 > ```
 >
-> ```bash no-run-button
-> # The practical one: "is Anthropic allowed?"
-> sbx policy ls | grep -i anthropic
-> ```
->
-> ```bash no-run-button
-> # See a specific host (or a few) across all rules
-> sbx policy ls | grep -iE "paste|anthropic|docker"
-> ```
->
-> If `grep -i anthropic` returns a row with `api.anthropic.com:443` and `remote`, your allow rule synced — the network test in Step 4 will let Anthropic through.
+> A row with `api.anthropic.com:443` and `remote` means your allow rule synced → Step 4 lets Anthropic through.
 
 ## Step 3 - Spin up a sandbox
 
@@ -222,23 +206,7 @@ We use `~/workdemo/scratch` as the workspace because Section 04 (Filesystem Enfo
 You'll land at a shell prompt inside the sandbox.
 
 > [!WARNING]
-> **If sandbox creation fails with `403 mount policy denied`**
->
-> `sbx run shell .` mounts the **current directory** into the sandbox. If your org's **filesystem** governance is active, that mount is subject to the same default-deny posture as the network rules - so the workspace path must be covered by an allow rule. You'll see:
->
-> ```
-> ERROR: failed to create sandbox: ... 403 Forbidden: mount policy denied:
-> /Users/<you>/workdemo/scratch: no applicable policies for
-> op(action=fs:mount:read, resource=fs:path:/Users/<you>/workdemo/scratch)
-> ```
->
-> If you used the **API / CLI** path in Step 1 and ran `setup-policies.sh` with no argument, this rule already exists - you shouldn't hit this error. Otherwise, add the shared filesystem allow rule once - this is the **same rule** Section 04 uses, so you only define it a single time:
->
-> - Open **[app.docker.com/accounts/$$org$$](https://app.docker.com/accounts/$$org$$)** → **AI governance → Filesystem access**
-> - Action: **Allow** · Filesystem path: `~/workdemo/**` · Action scope: **Read, Write** · Name: `allow workdemo`
-> - Sync and verify with `sbx policy reset` (pick Balanced), then `sbx policy ls` (confirm `allow workdemo` with `ORIGIN: remote`)
->
-> Then re-run `sbx run shell .`. Section 04 covers this mount-policy behavior in full.
+> **If creation fails with `403 ... mount policy denied`:** `sbx run shell .` mounts the current directory, which must be covered by a filesystem allow rule. If you ran `setup-policies.sh` (API/CLI path), it already exists. Otherwise add one — **AI governance → Filesystem access** → Allow `~/workdemo/**` (Read, Write) → `sbx policy reset` — and re-run. Section 04 covers this in full.
 
 ## Step 4 - Run the three enforcement tests
 
@@ -261,21 +229,7 @@ example.com: 403
 ```
 
 > [!NOTE]
-> **`anthropic: 404` is the success signal here, not an error.**
-> `https://api.anthropic.com` (the bare root, no path) genuinely returns `404` from
-> Anthropic's server — there's no resource at `/`, so Anthropic answers "not found."
-> The `200` some earlier docs showed was simply inaccurate; a plain GET to that root
-> has never had a `200` handler. (You only get `200` from real API paths with a
-> valid request + key.)
->
-> What matters for this demo is **404 vs 403**, not the exact number:
->
-> - **404** (or `401`, `405` — any non-`403` origin reply) = you *reached* Anthropic's
->   server → the **sbx proxy allowed** it, because `allow AI services` covers it.
-> - **403** = the **sbx proxy refused** the request before it ever left the sandbox.
->
-> If you see `anthropic: 403`, your allow rule isn't active: confirm with
-> `sbx policy ls | grep -i anthropic` and that the AI governance toggle is on.
+> **`anthropic: 404` is the success signal, not an error.** The bare root `https://api.anthropic.com` has no handler, so once the proxy lets it through Anthropic replies `404` (the `200` in some older docs was wrong). What matters is **404 vs 403**: any non-`403` reply (`404`/`401`/`405`) means you *reached* Anthropic → allowed; `403` means the sbx proxy refused it. Seeing `403`? Your allow rule isn't active — check `sbx policy ls | grep -i anthropic` and the AI governance toggle.
 
 | Destination | Code | What it means |
 | --- | --- | --- |

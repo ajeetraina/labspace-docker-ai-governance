@@ -78,16 +78,6 @@ flowchart TB
     class BLOCK deny
 ```
 
-> **Policy comes from Docker Hub and takes precedence.** Org admins set it in
-> the **AI Governance Settings** UI or via the **AI Governance API**
-> (`hub.docker.com/v2/orgs/<org>/governance/policies`); the `sbx` daemon fetches
-> it at `docker login` (`sbx policy reset` forces a refresh) and enforces it
-> locally — fail-closed, so no policy means deny-all.
->
-> **MCP Gateway — local or remote.** `SBX_MCP_URL` points at one of them:
-> `http://localhost:8811` (a gateway you run on the laptop) or
-> `https://gateway.docker.com` (Docker's hosted, org-governed gateway).
-
 > [!TIP]
 > Full version — policy authoring, the MCP Gateway, and the audit stream:
 > [overall architecture](assets/architecture.md).
@@ -103,11 +93,7 @@ SBX_MCP_URL is not set; MCP is not enabled
 Setting `SBX_MCP_URL` to an absolute http/https URL does two things: it **unlocks** the `mcp` subtree in `sbx --help`, and it tells `sbx` **which gateway** to talk to. That gateway is what provisions the connection, proxies tool calls, and applies governance.
 
 > [!IMPORTANT]
-> **Point `SBX_MCP_URL` at a real gateway - nothing else.** Only two values carry the full governed flow:
-> 1. a **local Docker MCP Gateway** (`http://localhost:8811`), or
-> 2. Docker's **hosted control plane** (`https://gateway.docker.com`).
->
-> Do **not** point it at the public MCP registry (`registry.modelcontextprotocol.io`). A registry is a *catalog, not a gateway* - it can't provision anything. With it, `sbx mcp add` appears to succeed but attaching fails: the daemon logs `501` / `WARN: mcp gateway setup failed` and the agent reports **"No MCP servers configured."**
+> **Point `SBX_MCP_URL` at a real gateway** — a local one (`http://localhost:8811`) or Docker's hosted control plane (`https://gateway.docker.com`). Not the public MCP registry (`registry.modelcontextprotocol.io`): a registry is a catalog, not a gateway, so `sbx mcp add` appears to work but attaching fails (`501` / "No MCP servers configured").
 
 ## Step 1 - Install or upgrade `sbx`
 
@@ -225,9 +211,6 @@ sbx daemon stop && sbx daemon start -d
 
 When you attach a server (Step 4), the daemon calls this control plane to provision a gateway and the agent connects to it. A successful attach logs a clean `200` and `mcp gateway started ... backends:N` in `sandboxd/daemon.log`. The gateway can **reject** a registration that violates org policy, inject backend secrets per request, and write every tool call to the audit trail (Section 10). Check [docker.com/products/ai-governance](https://www.docker.com/products/ai-governance/) for your org's enablement status.
 
-> [!TIP]
-> **If servers attach but every network call is denied** (the agent can't reach its own API, `apt`/downloads fail), check your realm. `governance policy evaluation ... allowed:false ... policy_deny_reason:"implicit"` in the daemon log means **no policies loaded** - usually because the policy/audit backend is unreachable. If the log shows a `*.stage-*.aws.dckr.io` endpoint timing out, you're on the **staging** realm: `unset DOCKER_AUTH_STAGING && docker logout && docker login` to your prod org, then restart the daemon. Governance is **fail-closed** - no policy means deny-all.
-
 :::
 
 ### Confirm the subtree is unlocked
@@ -266,11 +249,10 @@ sbx mcp ls
 sbx mcp inspect local-wiki
 ```
 
-> [!NOTE]
-> `sbx mcp inspect` shows only the **registration record** (name, type, resolved command). It does **not** start the server or list its tools - the real proof comes inside the agent in Step 5.
+`sbx mcp inspect` shows only the registration record, not live tools — the real proof comes inside the agent in Step 5.
 
 > [!WARNING]
-> **Local stdio servers run on the HOST, not in the sandbox** - with your full user permissions. Use them for development, not for code you don't trust. This is exactly the risk the gateway exists to govern.
+> **Local stdio servers run on the HOST, not in the sandbox** — with your full user permissions. Use them for development, not untrusted code. This is exactly the risk the gateway exists to govern.
 
 Two other registration modes work the same way against either gateway:
 
@@ -280,7 +262,7 @@ Two other registration modes work the same way against either gateway:
 ## Step 4 - Attach the server to a sandbox
 
 > [!WARNING]
-> Registering only *records* the server. `sbx run claude --mcp local-wiki` fails with `ERROR: unknown flag: --mcp` - that flag doesn't exist. The attach flag is **`--static-mcp`**.
+> Registering only *records* the server — attaching is separate. The attach flag is **`--static-mcp`**, not `--mcp` (`--mcp` fails with `unknown flag`).
 
 ```bash no-run-button
 # Bring up a sandbox with the server attached from the start
@@ -307,9 +289,9 @@ Manage MCP servers
 ```
 
 > [!IMPORTANT]
-> **The agent connects to one `mcp-gateway` endpoint, not to your servers directly.** Your backend's tools are aggregated *behind* the gateway. Press Enter on `mcp-gateway` to expand them - each tool is namespaced `mcp__mcp-gateway__<tool>` (e.g. `mcp__mcp-gateway__search_wikipedia`). That single governed endpoint is the whole point of Pillar 2: every tool call flows through the gateway, where policy and audit apply.
+> **The agent connects to one `mcp-gateway` endpoint, not your servers directly** — your backend's tools are aggregated behind it, namespaced `mcp__mcp-gateway__<tool>`. That single governed endpoint every tool call flows through is the whole point of Pillar 2.
 >
-> If `/mcp` instead lists `claude.ai …` connectors plus `claude-in-chrome` / `computer-use` built-ins, you're looking at your **host** Claude Code, not the sandbox - switch to the window launched by `sbx run`.
+> If `/mcp` instead lists `claude.ai …` connectors, you're in your **host** Claude Code, not the sandbox — switch to the window `sbx run` launched.
 
 Now make the agent actually call a tool. Esc out of `/mcp` and prompt it:
 
@@ -321,44 +303,14 @@ summary and 3 key facts. Tell me which tool(s) you called.
 A tool-call line such as `mcp-gateway · search_wikipedia` (approve it if prompted) and an answer drawn from the live article confirm the **complete chain**: `sbx → mcp-gateway → local-wiki → Wikipedia`, every call through the governed gateway.
 
 > [!WARNING]
-> **If every tool call is denied — this is expected when MCP governance is on.**
-> MCP tool invocation is governed by the **same fail-closed, default-deny** engine as
-> network and filesystem. With org governance active and **no MCP policy yet**, every
-> call is blocked and the agent reports something like:
->
-> ```
-> MCP error 0: policy denied local-wiki/search_wikipedia: implicit
-> ```
->
-> and the daemon log (`sandboxd/daemon.log`) shows:
->
-> ```
-> mcp policy: denied  action=invokeTool server=local-wiki target=search_wikipedia reason=implicit
-> ```
->
-> `reason=implicit` means *no MCP policy permits this server's tools* — not a bug, the
-> default-deny posture doing its job. There is **no local unblock**: `sbx policy allow`
-> only supports `network`, and `sbx mcp auth` is OAuth for remote servers, not a policy.
-> The **only** way to permit the tools is an **MCP access policy in Docker Hub** (the
-> Cedar document from *Govern it* below), synced down with `sbx policy reset`.
->
-> Add this policy — **AI governance → MCP policy → Create policy**, scope **Organization**:
+> **If every tool call is denied, that's expected when MCP governance is on.** MCP invocation is fail-closed default-deny (like network/filesystem); with no MCP policy yet, calls are blocked with `policy denied local-wiki/search_wikipedia: implicit`. There's no local unblock (`sbx policy allow` is network-only) — add a Cedar MCP policy in Hub (**AI governance → MCP policy → Create policy**, scope Organization):
 >
 > ```cedar
-> permit(
->   principal,
->   action == MCP::Action::"invoke",
->   resource is MCP::Tool
-> )
-> when {
->   resource.server == "local-wiki"
-> };
+> permit(principal, action == MCP::Action::"invoke", resource is MCP::Tool)
+> when { resource.server == "local-wiki" };
 > ```
 >
-> Then `sbx policy reset` (choose Balanced), confirm with `sbx policy ls | grep -i mcp`,
-> and re-run the prompt. The `denied … implicit` lines become allowed invocations.
-> To pin exact tools instead of the whole server, add
-> `&& ["search_wikipedia","get_summary"].contains(resource.name)` to the `when` clause.
+> Then `sbx policy reset` and re-run. See **Govern it** below for how the rules work.
 
 ## Step 6 - Clean up
 
