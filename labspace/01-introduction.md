@@ -13,6 +13,9 @@ The standard answer - **"don't let agents do that"** - doesn't scale. Developers
 
 That's AI governance.
 
+
+<img width="1261" height="638" alt="image" src="https://github.com/user-attachments/assets/072758ac-f40d-44b0-b169-c520b340131e" />
+
 ## The three pillars
 
 Docker AI Governance gives you three layers of control, defined once in the Admin Console and enforced everywhere agents run.
