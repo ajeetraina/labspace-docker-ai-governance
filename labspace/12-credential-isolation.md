@@ -167,21 +167,4 @@ The three sandbox protections together:
 - **Filesystem access** (04) - the agent can't mount unapproved paths
 - **Credential isolation** (this section) - the agent can't see the secrets it uses
 
-## Common questions
-
-**"Can the agent just print the key with `env`?"**
-No. The environment only ever contains the sentinel. The real value exists on the host and is injected on the wire by the proxy, after the request has left the sandbox.
-
-**"What if I export the real key as an env var anyway?"**
-It still works - the proxy reads it from the host environment. But it sits in plaintext in your shell. Prefer `sbx secret set` so it lives in the OS keychain, which takes precedence over env vars.
-
-**"I changed a global secret but the sandbox still uses the old one."**
-Global secrets are read at sandbox creation. Recreate the sandbox, or use a sandbox-scoped secret (those apply immediately).
-
-**"How is this different from the network allow rule in Section 03?"**
-The allow rule decides *whether* the request is forwarded. Credential isolation decides *what credential* gets attached to a forwarded request. Both happen at the same proxy: the rule gates the destination, the secret store fills in the auth.
-
-**"Is credential isolation something the org admin configures?"**
-No - it's developer-side (`sbx secret`, keychain, OAuth). The admin governs *where* the agent can go (network) and *what* it can mount (filesystem); the developer supplies the *credentials* for the allowed services, and the proxy keeps them out of the sandbox.
-
 Move on to the Product Catalog to see governance applied to a realistic multi-service stack.

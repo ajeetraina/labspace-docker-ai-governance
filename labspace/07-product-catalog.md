@@ -145,18 +145,4 @@ Autonomy and governance aren't a trade-off here. The policies from Sections 03 a
 - **Filesystem** is contained - the agent mounts only approved paths, and its writes land only where allowed
 - **Review** stays human - the diff surfaces on your laptop before anything merges
 
-## Common questions
-
-**"Does the Product Catalog run as a live app in the sandbox?"**
-No. Only its source code is mounted. The agent builds and *tests* it (with disposable Testcontainers), but nothing serves traffic. If you want to click around the running app, that's the separate `docker compose up` stack on your host.
-
-**"The agent edits my real files - isn't that risky?"**
-The edits are scoped to the bind-mounted workspace, which is covered by a filesystem allow rule. It can't write outside that path, and you review the diff before committing. For full isolation where even edits stay inside until you pull them out, use `sbx run --clone` - the agent works on an in-container git clone instead.
-
-**"What if I run `sbx run` from a directory with no allow rule?"**
-Sandbox creation fails with the default-deny 403 from Section 04. Work in an org-approved directory or get a rule added.
-
-**"Could the agent leak the catalog's source or its findings?"**
-Not to a denylisted destination - the network deny rules (Section 03) block known exfil hosts, and only explicitly allowed hosts are reachable at all.
-
 This is the payoff of the whole lab: **define policy once in the Admin Console, and a real autonomous agent on a real codebase stays inside the lines - automatically.**

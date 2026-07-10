@@ -216,18 +216,4 @@ You took the exact blast radius the horror-story agent measured in Section 01 - 
 
 That is the defensible, end-to-end story: *"Show me an agent doing something dangerous, and I'll show you where the policy stops it - and where the CISO sees it happen."*
 
-## Common questions
-
-**"Do I have to configure these four controls separately for each project?"**
-No. Network and filesystem policies are org-level and apply to every sandbox `$$org$$` developers launch. Credential isolation is on by default (the sandbox only ever gets sentinels). MCP governance applies to every server registered through the gateway. You set them once.
-
-**"What if the agent chains the attacks - reads a secret, then sends it?"**
-It can't get past step one. The credential mount is denied at creation (Attack 1), so there's nothing on disk to send; and even the allowed calls carry only a sentinel, not a usable key (Attack 3). The boundaries compose - defeating one doesn't unlock the next.
-
-**"Where do I see all four decisions in one place?"**
-The audit trail. Every allow/deny across network, filesystem, and MCP emits a structured event - explored in the **Audit Logging** section and streamable to your SIEM.
-
-**"Can a developer turn any of this off to move faster?"**
-Not the org-governed pillars (network, filesystem, MCP). `ORIGIN: remote` policies are authoritative and can't be overridden locally. Credential isolation is developer-side by design, but the agents are pre-wired for it - there's no live key to opt back into.
-
 Next, the **Observability** and **Audit Logging** sections show these same decisions as a live dashboard and a queryable event stream - the visibility half of the story.

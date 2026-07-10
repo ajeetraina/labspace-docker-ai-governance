@@ -191,13 +191,20 @@ cd ~/workdemo/test-1
 sbx run shell .
 ```
 
-**Expected:** sandbox starts. You land at the shell prompt.
+The sandbox starts and you land at the shell prompt. Write a file to prove the mount is real and read-write, then exit:
 
 ```bash no-run-button
+echo "hello from the agent" > proof.txt
 exit
 ```
 
-✅ The `allow workdemo` rule permits the mount.
+Back on the host, the write persisted at the allowed path:
+
+```bash no-run-button
+cat ~/workdemo/test-1/proof.txt
+```
+
+✅ The `allow workdemo` rule permits the mount — creation succeeds, and reads/writes work inside it.
 
 ## Step 5 - Test 2: Allowed workdir + denied extra mount
 
@@ -284,19 +291,5 @@ Combined with Section 03, Pillar 1 is now proven end-to-end:
 
 - **Network egress** - agent can't reach unapproved destinations (proxy intercept)
 - **Filesystem access** - agent can't even mount unapproved paths (creation-time denial)
-
-## Common questions
-
-**"What if the developer runs sbx from outside an allowed directory?"**
-They get the default-deny error from Test 3. They have to work in an org-approved directory or get a rule added.
-
-**"What about files written inside the sandbox?"**
-Writes go to the explicit workspace (the mount that got `fs:mount:write`). When the sandbox exits, writes persist on the host - but only at allowed paths.
-
-**"Can the developer override governance locally?"**
-No. Local sbx options can adjust convenience flags but can't bypass `ORIGIN: remote` policies. Once the org sets filesystem rules, they're authoritative.
-
-**"How does this interact with the Network rules from Section 03?"**
-Both run through the same policy engine. Filesystem ops hit `fs:mount:*` checks; network calls hit network checks. Both share the audit trail covered later in the lab.
 
 You've now blocked the agent from reading secrets off disk. Next, **Credential Isolation** shows how the agent uses the secrets it *is* allowed to - API keys, tokens, SSH - without the real values ever entering the sandbox.

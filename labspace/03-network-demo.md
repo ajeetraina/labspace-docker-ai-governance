@@ -347,21 +347,4 @@ The full Pillar 1 story end-to-end:
 
 Three rules and three `curl`s - and you have a working enforcement story you can defend to a security team. Define them by hand for a demo, or script them with `setup-policies.sh` to put governance in version control.
 
-## Common questions
-
-**"What if the developer just runs `docker logout`?"**
-They can. But then they can't pull org-hosted images, push to org registries, or use any other org Docker services. The incentive is to stay logged in.
-
-**"What if they run `sbx` without org credentials?"**
-The local default policy (Balanced) applies - a generic dev allowlist. They lose access to anything outside that list *and* don't get the org-specific rules. They can do less, not more.
-
-**"How fast does a policy change reach developers?"**
-A few minutes typically. To force a refresh: `sbx policy reset`.
-
-**"Can the developer override a deny rule locally?"**
-No. Local rules are only honored for rule types the org policy does not own. Once the org defines network rules, local network rules go inactive.
-
-**"I skipped the allow rules and `api.anthropic.com` still returned 200/404 - why?"**
-sbx may retain baseline access to a small set of well-known AI provider destinations even when corporate network policy is active and the `default-ai-services` local rule shows `inactive - corporate policy takes precedence`. Whether this is intentional ("preserve sensible defaults") or an artifact of how the proxy initialises is currently undocumented. The takeaway: **always define the allow rules**. Explicit allow rules give you something concrete to point at when a security team asks "why did this work?" - instead of relying on undocumented baseline behaviour.
-
 Move on to Section 04 to prove the filesystem half of the same model.
