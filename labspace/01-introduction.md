@@ -33,6 +33,8 @@ Every policy decision generates a structured event with user identity, timestamp
 
 | Section | What you'll do |
 | --- | --- |
+| The Problem Statement | Watch an unsandboxed agent read your secrets first-hand |
+| Sandboxing the Agent | Put the agent inside an isolated sandbox and re-run — the secrets vanish |
 | 02 - The Policy Model | Understand how org policies flow to developer machines |
 | 03 - Network Enforcement Demo | Prove network policies enforce with three `curl`s |
 | 04 - Filesystem Enforcement Demo | Prove filesystem policies enforce on a credentials directory |

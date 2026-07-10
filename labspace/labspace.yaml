@@ -13,6 +13,12 @@ sections:
   - title: Why AI Governance
     contentPath: 01-introduction.md
 
+  - title: The Problem Statement
+    contentPath: 15-problem-statement.md
+
+  - title: Sandboxing the Agent
+    contentPath: 16-sandboxing-the-agent.md
+
   - title: The Policy Model
     contentPath: 02-the-policy-model.md
 
