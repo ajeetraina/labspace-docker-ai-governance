@@ -1,15 +1,15 @@
 # Observability - Audit + Dashboard
 
-Section 05 promised Pillar 3 (Audit + Visibility) was rolling out. The good news: the foundation is already shipping. Every policy decision sbx makes is written to a structured JSONL log on disk today - and `start-labspace.sh` already brought up a live dashboard for you alongside this lab.
+Section 05 promised Pillar 3 (Audit + Visibility) was rolling out. The good news: the foundation is already shipping. Every policy decision sbx makes is written to a structured JSONL log on disk today - and this section ships a live dashboard you'll start in **Step 3** to watch those decisions in real time.
 
 <iframe src="http://localhost:8090" width="100%" height="600" style="border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;" loading="lazy"></iframe>
 
-If you don't see the dashboard above, open it in a new tab: **[http://localhost:8090](http://localhost:8090)**. Trigger a few events with the commands below and it will populate live.
+The panel above is **blank until you start the dashboard in Step 3** - it isn't running by default (it's only needed for this section). Once it's up, open it in a new tab if the embed doesn't refresh: **[http://localhost:8090](http://localhost:8090)**, then trigger a few events with the commands below and it will populate live.
 
 This section gives you two things:
 
 1. A way to read the underlying audit log directly with `jq`
-2. The dashboard you see above - built from `labspace/kits/observability/` and started automatically by `start-labspace.sh`
+2. The dashboard shown above - built from `labspace/kits/observability/`, which you start in Step 3
 
 **Time:** ~10 minutes
 **Prerequisites:** You completed Sections 03 and (optionally) 06.
@@ -85,20 +85,25 @@ Plus a third log file - **`mcp/mcp.log`** alongside `daemon.log` - that captures
 
 The audit log answers *what was decided and why*, with sandbox attribution on some events. It does not yet answer *who triggered it* across multiple users on one machine - Docker's marketing implies this is coming, but as of v0.32.0 it still isn't in any field, so the dashboard keeps synthesising the user from `$USER`.
 
-## Step 3 - Dashboard (already running)
+## Step 3 - Start the dashboard
 
-`start-labspace.sh` already brought up the dashboard alongside the labspace UI - it's the embedded panel at the top of this section. If you'd rather run it standalone (e.g., from a different machine, or without the labspace UI), the kit at `labspace/kits/observability/` ships an identical compose file:
+The dashboard is **not** running by default - it's only needed for this section, so you start it here. The kit at `labspace/kits/observability/` ships a self-contained compose file. From the repo root:
 
 ```bash no-run-button
-cd ~/workdemo/labspace-docker-ai-governance/labspace/kits/observability
+cd labspace/kits/observability
 docker compose --profile with-gateway up -d --build
 ```
 
-Then open it in a fresh browser tab:
+> [!NOTE]
+> If you cloned the repo elsewhere, `cd` to `<repo>/labspace/kits/observability` instead. The `--profile with-gateway` also brings up a local `docker/mcp-gateway` so MCP traffic shows up in the dashboard; drop the profile flag if you only want sbx policy events.
+
+Give it a few seconds to build, then open it (or refresh the embedded panel at the top of this section):
 
 ```bash no-run-button
 open http://localhost:8090
 ```
+
+When you're done with this section you can stop it again with `docker compose down` from the same directory.
 
 ## Step 4 - Generate some events to watch
 
