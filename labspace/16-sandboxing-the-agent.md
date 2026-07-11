@@ -6,6 +6,7 @@ The fix is to stop running it on bare metal and run it inside a **sandbox** ~ an
 This section gets `sbx` ready, wires up your agent, and runs it sandboxed. (Install and `docker login` were covered in **Setup**.)
 
 **Time:** ~10 minutes
+
 **Prerequisites:** Section 00 - Setup (sbx installed, logged in).
 
 ## Step 1 - Confirm sbx is ready
