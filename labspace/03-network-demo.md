@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart LR
-    HUB["Docker Hub Org<br/>network policy<br/>allow AI · allow Docker · deny exfil"]
+    HUB["Docker Hub Org<br/>network policy<br/>allow AI · allow Docker<br/>deny exfil"]
     subgraph HOST["Host machine"]
         PROXY["sbx daemon<br/>network proxy + policy (cached)"]
         subgraph VM["MicroVM (sandbox)"]

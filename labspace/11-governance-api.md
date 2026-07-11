@@ -5,9 +5,9 @@ flowchart TB
     CLIENT["Admin / CI script (curl)"]
     CLIENT -->|"POST /v2/users/login"| TOKEN["JWT bearer token"]
     TOKEN --> OPS
-    subgraph OPS["/v2/orgs/{org}/governance/policies"]
-        P["create / get / patch / delete policy"]
-        R["create / patch / delete rules<br/>network: connect:tcp/udp · fs: read/write"]
+    subgraph OPS["Policies API"]
+        P["/v2/orgs/{org}/governance/policies<br/>create · get · patch · delete"]
+        R["rules: create · patch · delete<br/>network: connect:tcp/udp<br/>fs: read/write"]
     end
     OPS --> POLICY[("Org policy — same store as the UI")]
     POLICY -. "≤5 min · sbx policy reset" .-> DEV["sbx policy ls → ORIGIN: remote"]

@@ -6,11 +6,11 @@ flowchart LR
         SPEC["spec.yaml<br/>kind: mixin"]
         SKILL["files/workspace/.claude/skills/<br/>docker-review/SKILL.md"]
     end
-    KIT -- "sbx run claude --kit ./kits/docker-review/" --> VM
+    KIT -- "sbx run claude<br/>--kit ./kits/docker-review/" --> VM
     subgraph HOST["Host machine"]
         subgraph VM["MicroVM (sandbox)"]
             subgraph WS["workspace (mounted)"]
-                INJECTED[".claude/skills/docker-review/SKILL.md"]
+                INJECTED[".claude/skills/docker-review/<br/>SKILL.md"]
             end
             CLAUDE["Claude Code<br/>auto-discovers the skill"]
             INJECTED --> CLAUDE

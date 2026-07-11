@@ -3,14 +3,14 @@
 ```mermaid
 flowchart TB
     ORG["Org governance"] -. sync .-> LS
-    subgraph LS["sbx policy ls — which rules are active"]
+    subgraph LS["sbx policy ls · active rules"]
         R1["remote (org) rules → active"]
         R2["local / kit rules → inactive<br/>--include-inactive to reveal"]
     end
     SBOX["Sandbox traffic"] --> LOG
-    subgraph LOG["sbx policy log — what traffic did"]
-        AL["Allowed: api.anthropic.com ×42 (forward)"]
-        BL["Blocked: example.com (default-deny)"]
+    subgraph LOG["sbx policy log · traffic"]
+        AL["Allowed<br/>api.anthropic.com ×42 (forward)"]
+        BL["Blocked<br/>example.com (default-deny)"]
     end
 
     classDef hub fill:#eef2ff,stroke:#6366f1,color:#000

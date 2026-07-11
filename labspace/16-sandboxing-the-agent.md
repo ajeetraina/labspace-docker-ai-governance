@@ -4,7 +4,7 @@
 flowchart TB
     HUB["Docker Hub Org<br/>network + filesystem policy"]
     subgraph HOST["Host machine"]
-        DAEMON["sbx daemon<br/>network proxy + policy (cached) · injects real key"]
+        DAEMON["sbx daemon<br/>network proxy + policy (cached)<br/>injects real key"]
         WORK["~/workdemo (on host)"]
         SECRETS["~/.ssh · ~/.aws · ~/.docker<br/>NOT mounted"]
         KEY["OS keychain<br/>real API key"]

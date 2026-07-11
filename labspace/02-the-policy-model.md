@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TB
-    subgraph SRC["One source of truth — your org"]
+    subgraph SRC["Source of truth"]
         UI["Admin Console (UI)"]
         API["Governance API"]
     end

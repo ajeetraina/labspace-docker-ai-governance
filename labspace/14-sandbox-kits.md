@@ -4,7 +4,7 @@
 flowchart TB
     HUB["Docker Hub Org — policy = ceiling<br/>network · filesystem · MCP"]
     subgraph KIT["Kit — governance as code"]
-        SPEC["spec.yaml<br/>caps.network.allow · credentials · files · mcp"]
+        SPEC["spec.yaml<br/>caps.network.allow · credentials<br/>files · mcp"]
         FILES["files/"]
     end
     subgraph HOST["Host machine"]

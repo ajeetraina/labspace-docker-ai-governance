@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TB
-    HUB["Docker Hub Org — one policy engine<br/>network · filesystem · credential · MCP"]
+    HUB["Docker Hub Org<br/>one policy engine<br/>network · filesystem<br/>credential · MCP"]
     subgraph HOST["Host machine"]
         DAEMON["sbx daemon + gateway<br/>enforces policy (cached)"]
         subgraph VM["MicroVM (sandbox)"]

@@ -2,9 +2,9 @@
 
 ```mermaid
 flowchart TB
-    BUILTIN["Built-in claude agent kit<br/>run: [claude, --dangerously-skip-permissions]"]
-    BUILTIN -- fork --> SAFE["claude-safe (kind: sandbox)<br/>run: [claude] — approval on every tool call"]
-    SAFE -- "sbx run claude-safe --kit ./kits/claude-safe/" --> VM
+    BUILTIN["Built-in claude agent kit<br/>run: [claude,<br/>--dangerously-skip-permissions]"]
+    BUILTIN -- fork --> SAFE["claude-safe (kind: sandbox)<br/>run: [claude]<br/>approval on every tool call"]
+    SAFE -- "sbx run claude-safe<br/>--kit ./kits/claude-safe/" --> VM
     MIXIN["docker-review mixin"] -- "--kit (stacked)" --> VM
     subgraph HOST["Host machine"]
         subgraph VM["MicroVM (sandbox)"]

@@ -9,7 +9,7 @@ flowchart TB
         subgraph STACK["Running app (for you)"]
             APP["catalog-service<br/>Postgres · Kafka · S3"]
         end
-        subgraph VM["MicroVM (sandbox) — agent's workbench"]
+        subgraph VM["MicroVM (sandbox)"]
             AGENT["Claude (autonomous)"]
             WS["catalog source<br/>(bind-mounted)"]
             DIND["sandbox Docker daemon<br/>Testcontainers run here"]

@@ -4,7 +4,7 @@
 flowchart LR
     ADMIN["One source of truth<br/>Admin Console — your org"] --> P1 & P2 & P3
     P1["Pillar 1 · Sandbox policies<br/>✅ proven (03–13)"]
-    P2["Pillar 2 · MCP tool governance<br/>MCP Gateway Enterprise (rolling out)"]
+    P2["Pillar 2 · MCP tool governance<br/>MCP Gateway Enterprise<br/>(rolling out)"]
     P3["Pillar 3 · Audit + visibility<br/>daemon.log / auditkit → SIEM"]
 
     classDef admin fill:#eef2ff,stroke:#6366f1,color:#000

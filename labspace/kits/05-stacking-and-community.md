@@ -4,9 +4,9 @@
 flowchart LR
     K1["./kits/claude-safe/"] --> MERGE
     K2["./kits/docker-review/"] --> MERGE
-    K3["git+github.com/docker/sbx-kits-contrib#dir=code-server"] --> MERGE
+    K3["git+github.com/docker/<br/>sbx-kits-contrib#dir=code-server"] --> MERGE
     K4["ghcr.io/org/kit:1.0 (OCI)"] --> MERGE
-    MERGE{{"--kit --kit merge<br/>network unioned · files injected · installs in order"}}
+    MERGE{{"--kit --kit merge<br/>network unioned · files injected<br/>installs in order"}}
     subgraph HOST["Host machine"]
         subgraph VM["MicroVM (sandbox)"]
             S["one sandbox<br/>all kits applied"]

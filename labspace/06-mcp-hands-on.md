@@ -8,7 +8,7 @@ flowchart LR
     AGENT == "SBX_MCP_URL" ==> GW{"which gateway?"}
     GW -- "localhost:8811" --> LOCAL["Local gateway<br/>(Compose / Desktop)"]
     GW -- "gateway.docker.com" --> HOSTED["Hosted control plane<br/>Cedar policy · audit"]
-    LOCAL --> BE["backends<br/>local-wiki · Notion · docker.io image"]
+    LOCAL --> BE["backends<br/>local-wiki · Notion<br/>docker.io image"]
     HOSTED --> BE
     GW -. "registry.modelcontextprotocol.io" .-> BAD["catalog, not a gateway → fails"]
 

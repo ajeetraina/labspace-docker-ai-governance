@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TB
-    HUB["Docker Hub Org<br/>filesystem policy<br/>allow ~/workdemo/** · deny credentials"]
+    HUB["Docker Hub Org<br/>filesystem policy<br/>allow ~/workdemo/**<br/>deny credentials"]
     subgraph HOST["Host machine"]
         T1["~/workdemo/test-1"] --> CHK
         T2["~/workdemo + ~/.ssh:ro"] --> CHK
@@ -11,7 +11,7 @@ flowchart TB
         CHK -->|"allow workdemo"| VM
         CHK -->|"deny credentials"| X1["403 — never starts"]
         CHK -->|"no rule → default-deny"| X2["403 — never starts"]
-        subgraph VM["MicroVM (sandbox) starts ✅"]
+        subgraph VM["MicroVM starts ✅"]
             WS["workspace ~/workdemo/test-1<br/>(mounted)"]
         end
     end

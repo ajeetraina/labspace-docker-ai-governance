@@ -9,8 +9,8 @@ flowchart LR
     subgraph HOST["Host machine"]
         SECRET["real secret<br/>(env / sbx secret)"]
         PROXY["egress proxy + policy"]
-        subgraph VM["MicroVM (sandbox) — never holds the secret"]
-            AGENT["agent"]
+        subgraph VM["MicroVM (sandbox)"]
+            AGENT["agent<br/>never holds the secret"]
         end
         AGENT -- request --> PROXY
     end
