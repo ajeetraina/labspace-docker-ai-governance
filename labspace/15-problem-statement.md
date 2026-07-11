@@ -3,7 +3,8 @@
 Section 01 made the argument: an AI agent runs with your full blast radius. This section makes it **visceral** — you'll run a coding agent directly on your host, with no sandbox, and watch it walk straight into your secrets. Nothing stops it, because nothing is watching.
 
 **Time:** ~5 minutes
-**Prerequisites:** A coding agent installed on your host (e.g. Claude Code). No `sbx` yet — that's the whole point.
+
+**Prerequisites:** A coding agent installed on your host (e.g. Claude Code). No `sbx` yet, that's the whole point.
 
 ## What you'll see
 
