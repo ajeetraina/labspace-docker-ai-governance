@@ -7,10 +7,14 @@ flowchart LR
         SKILL["files/workspace/.claude/skills/<br/>docker-review/SKILL.md"]
     end
     KIT -- "sbx run claude --kit ./kits/docker-review/" --> VM
-    subgraph VM["Sandbox workspace"]
-        INJECTED[".claude/skills/docker-review/SKILL.md"]
-        CLAUDE["Claude Code<br/>auto-discovers the skill"]
-        INJECTED --> CLAUDE
+    subgraph HOST["Host machine"]
+        subgraph VM["MicroVM (sandbox)"]
+            subgraph WS["workspace (mounted)"]
+                INJECTED[".claude/skills/docker-review/SKILL.md"]
+            end
+            CLAUDE["Claude Code<br/>auto-discovers the skill"]
+            INJECTED --> CLAUDE
+        end
     end
 
     classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000

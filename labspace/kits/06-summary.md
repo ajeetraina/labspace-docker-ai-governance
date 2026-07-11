@@ -6,7 +6,13 @@ flowchart LR
         M["docker-review<br/>mixin (skill)"]
         A["claude-safe<br/>agent kit (approvals)"]
     end
-    BUILT --> WINS
+    subgraph HOST["Host machine"]
+        subgraph VM["MicroVM (sandbox)"]
+            RUN["kit applied<br/>creds never enter the VM"]
+        end
+    end
+    BUILT -- "sbx run --kit" --> VM
+    VM --> WINS
     subgraph WINS["Kits vs shell scripts"]
         W1["creds never enter VM"]
         W2["composable egress"]
@@ -15,8 +21,10 @@ flowchart LR
     end
 
     classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     classDef win fill:#ecfdf5,stroke:#10b981,color:#000
     class M,A kit
+    class RUN vm
     class W1,W2,W3,W4 win
 ```
 

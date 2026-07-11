@@ -6,8 +6,10 @@ flowchart TB
     BUILTIN -- fork --> SAFE["claude-safe (kind: sandbox)<br/>run: [claude] — approval on every tool call"]
     SAFE -- "sbx run claude-safe --kit ./kits/claude-safe/" --> VM
     MIXIN["docker-review mixin"] -- "--kit (stacked)" --> VM
-    subgraph VM["Sandbox"]
-        A["approval prompts + review skill<br/>+ proxy-managed anthropic creds"]
+    subgraph HOST["Host machine"]
+        subgraph VM["MicroVM (sandbox)"]
+            A["approval prompts + review skill<br/>+ proxy-managed anthropic creds"]
+        end
     end
 
     classDef base fill:#eef2ff,stroke:#6366f1,color:#000

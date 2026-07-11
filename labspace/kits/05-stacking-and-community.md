@@ -7,12 +7,17 @@ flowchart LR
     K3["git+github.com/docker/sbx-kits-contrib#dir=code-server"] --> MERGE
     K4["ghcr.io/org/kit:1.0 (OCI)"] --> MERGE
     MERGE{{"--kit --kit merge<br/>network unioned · files injected · installs in order"}}
-    MERGE --> VM["one Sandbox"]
+    subgraph HOST["Host machine"]
+        subgraph VM["MicroVM (sandbox)"]
+            S["one sandbox<br/>all kits applied"]
+        end
+    end
+    MERGE --> VM
 
     classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
     classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     class K1,K2,K3,K4,MERGE kit
-    class VM vm
+    class S vm
 ```
 
 *Pass `--kit` repeatedly to stack kits — local, Git URL, or OCI image. Their rules merge: allowlists unioned, files injected, installs run in order.*

@@ -2,23 +2,31 @@
 
 ```mermaid
 flowchart TB
+    HUB["Docker Hub Org — policy = ceiling<br/>network · filesystem · MCP"]
     subgraph KIT["Kit — governance as code"]
         SPEC["spec.yaml<br/>caps.network.allow · credentials · files · mcp"]
         FILES["files/"]
     end
-    KIT -- "sbx run --kit" --> VM["Sandbox<br/>reproducible & compliant by construction"]
-    CEIL["Org policy = ceiling<br/>network · filesystem · MCP"]
-    CEIL -. "kit can't widen beyond this" .-> VM
-    VM -->|"kit allow ∩ org allow"| OK["allowed"]
-    VM -->|"kit allow − org deny"| BLOCK["still blocked"]
+    subgraph HOST["Host machine"]
+        DAEMON["sbx daemon<br/>org policy (cached)"]
+        subgraph VM["MicroVM (sandbox)"]
+            AGENT["agent + injected files<br/>reproducible & compliant"]
+        end
+    end
+    KIT -- "sbx run --kit" --> VM
+    HUB -. "policy synced" .-> DAEMON
+    DAEMON -->|"kit allow ∩ org allow"| OK["allowed"]
+    DAEMON -->|"kit allow − org deny"| BLOCK["still blocked (org wins)"]
 
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
     classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
     classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
     classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class HUB hub
     class SPEC,FILES kit
-    class VM,OK vm
-    class CEIL pol
+    class AGENT,OK vm
+    class DAEMON pol
     class BLOCK deny
 ```
 

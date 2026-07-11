@@ -15,14 +15,19 @@ flowchart LR
         N["caps.network.allow"]
         C["credentials.inject (via proxy)"]
     end
-    CAPS --> VM["Sandbox"]
+    subgraph HOST["Host machine"]
+        subgraph VM["MicroVM (sandbox)"]
+            AGENT["agent + kit applied"]
+        end
+    end
+    CAPS -- "sbx run --kit" --> VM
 
     classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
     classDef cap fill:#fff7ed,stroke:#f59e0b,color:#000
     classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     class SPEC,FILES kit
     class I,S,F,N,C cap
-    class VM vm
+    class AGENT vm
 ```
 
 *A kit is a `spec.yaml` + optional `files/` that declares everything a sandbox needs — tools, files, network rules, credentials — as one shareable artifact.*

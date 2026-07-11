@@ -6,16 +6,16 @@ flowchart LR
         NET["caps.network.allow<br/>pypi.org · api.my-service.com"]
         CRED["credentials.apiKey.inject<br/>domain · header · format"]
     end
-    subgraph HOST["Host"]
+    subgraph HOST["Host machine"]
         SECRET["real secret<br/>(env / sbx secret)"]
-        PROXY["egress proxy"]
+        PROXY["egress proxy + policy"]
+        subgraph VM["MicroVM (sandbox) — never holds the secret"]
+            AGENT["agent"]
+        end
+        AGENT -- request --> PROXY
     end
     KIT --> PROXY
     SECRET --> PROXY
-    subgraph VM["Sandbox (never holds the secret)"]
-        AGENT["agent"]
-    end
-    AGENT -- request --> PROXY
     PROXY -->|"allow + inject header"| API["api.my-service.com"]
     PROXY -->|"not allowed"| BLOCK["blocked"]
 
