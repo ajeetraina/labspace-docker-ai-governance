@@ -1,5 +1,27 @@
 # Audit Logging
 
+```mermaid
+flowchart LR
+    GOV["Governance active for your org<br/>(required — else no audit)"] --> AUDITKIT
+    subgraph HOST["Host machine"]
+        AUDITKIT["auditkit"]
+        TMP[".tmp (active, incomplete)"]
+        JSONL["audit-*.jsonl (sealed)<br/>+ user · org · session"]
+        AUDITKIT --> TMP
+        TMP -- "seal & rename" --> JSONL
+    end
+    JSONL -- "collect *.jsonl only" --> SHIP["Splunk UF · Filebeat · LogScale"] --> SIEM["SIEM"]
+
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef audit fill:#f3e8fd,stroke:#9333ea,color:#000
+    classDef idle fill:#f1f5f9,stroke:#94a3b8,color:#000
+    class GOV pol
+    class AUDITKIT,JSONL,SHIP,SIEM audit
+    class TMP idle
+```
+
+*The purpose-built `auditkit` surface: one sealed JSONL event per decision, now carrying user, org, and session — the SIEM-grade trail Section 08 said was missing. Collect the `.jsonl` files, skip the `.tmp`.*
+
 Section 08 looked at the raw `daemon.log` and was honest about its limits: it answered *what* was decided, but it had **no user identity, no org, no session correlation**. We noted user attribution was on the roadmap.
 
 That roadmap item shipped. Docker AI Governance now writes a separate, purpose-built **audit log** through a component called `auditkit` - structured JSON Lines, one event per policy decision, **with the signed-in user, the org, and a session ID on every record**. This section is the SIEM-grade surface the security team actually asked for.

@@ -1,5 +1,22 @@
 # Stacking Kits and the Community Repo
 
+```mermaid
+flowchart LR
+    K1["./kits/claude-safe/"] --> MERGE
+    K2["./kits/docker-review/"] --> MERGE
+    K3["git+github.com/docker/sbx-kits-contrib#dir=code-server"] --> MERGE
+    K4["ghcr.io/org/kit:1.0 (OCI)"] --> MERGE
+    MERGE{{"--kit --kit merge<br/>network unioned · files injected · installs in order"}}
+    MERGE --> VM["one Sandbox"]
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    class K1,K2,K3,K4,MERGE kit
+    class VM vm
+```
+
+*Pass `--kit` repeatedly to stack kits — local, Git URL, or OCI image. Their rules merge: allowlists unioned, files injected, installs run in order.*
+
 ## Stacking with --kit --kit
 
 Pass `--kit` more than once to stack kits on the same sandbox. Rules from all kits are merged: `caps.network.allow` entries are unioned, files from all kits are injected, install commands from all kits run in order.

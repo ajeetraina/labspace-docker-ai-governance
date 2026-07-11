@@ -1,5 +1,35 @@
 # The Policy Model
 
+```mermaid
+flowchart TB
+    subgraph SRC["One source of truth — your org"]
+        UI["Admin Console (UI)"]
+        API["Governance API"]
+    end
+    UI --> POLICY[("Org policy<br/>network · filesystem rules")]
+    API --> POLICY
+    POLICY -. "docker login / sbx policy reset" .-> DAEMON["sbx daemon<br/>caches policy"]
+    DAEMON --> SBOX["every sandbox<br/>on this machine"]
+    subgraph EVAL["Per-request evaluation"]
+        D1{"deny match?"} -->|yes| BLOCK["block 403"]
+        D1 -->|no| D2{"allow match?"}
+        D2 -->|yes| FWD["forward"]
+        D2 -->|no| DEF["default-deny → block"]
+    end
+    SBOX --> D1
+
+    classDef src fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef ok fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class UI,API src
+    class POLICY,DAEMON pol
+    class FWD,SBOX ok
+    class BLOCK,DEF deny
+```
+
+*Authored once (UI or API), synced to the daemon at login, cached, and applied to every sandbox. Each request is evaluated deny → allow → default-deny.*
+
 Before you run the live demo, here's the mental model.
 
 ## Where policies live

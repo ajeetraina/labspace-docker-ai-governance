@@ -1,5 +1,36 @@
 # Product Catalog
 
+```mermaid
+flowchart TB
+    subgraph HOST["Host machine"]
+        subgraph STACK["Running app (for you)"]
+            APP["catalog-service<br/>Postgres · Kafka · S3"]
+        end
+        subgraph VM["Sandbox (MicroVM) — agent's workbench"]
+            AGENT["Claude (autonomous)"]
+            DIND["sandbox Docker daemon<br/>Testcontainers run here"]
+            AGENT --> DIND
+        end
+        SRC["~/workdemo/catalog-service-node<br/>bind-mounted source"]
+        PROXY["sbx proxy + policy"]
+    end
+    AGENT -- edits --> SRC
+    SRC -. "git diff for review" .-> YOU["you"]
+    AGENT -- "anthropic · npm (allow)" --> PROXY --> NET["approved hosts"]
+    AGENT -. "paste.ee / ~/.ssh (deny)" .-> BLOCK["blocked"]
+
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef app fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class AGENT,DIND,SRC vm
+    class PROXY,NET pol
+    class APP app
+    class BLOCK deny
+```
+
+*A real autonomous agent on a real service: it edits bind-mounted source (diff lands on your laptop), builds and tests in the sandbox's own Docker daemon, reaches only approved hosts — host Docker, SSH keys, and off-policy destinations all stay out of reach.*
+
 The first demos proved governance with synthetic tests - `curl` to a denylisted host, a mount of `~/.ssh`. This section proves it on a **real application** with a **real autonomous coding agent**.
 
 You'll point Claude at the [Product Catalog service](https://github.com/dockersamples/catalog-service-node) - a Node.js + Express API backed by Postgres, S3, Kafka, and an external inventory service - and hand it an autonomous task: fix a known bug and prove the fix with the project's Testcontainers integration suite. The whole time, the network and filesystem policies you configured in Sections 03 and 04 are the only thing standing between "autonomous" and "uncontained."

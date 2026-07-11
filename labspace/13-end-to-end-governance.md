@@ -1,5 +1,27 @@
 # Putting It All Together
 
+```mermaid
+flowchart TB
+    subgraph ENGINE["One policy engine — your org"]
+        POL["network · filesystem · credential · MCP"]
+    end
+    ROGUE["Rogue / prompt-injected agent<br/>one sandbox · four attacks"]
+    POL -. enforces .-> ROGUE
+    ROGUE -->|"1 · mount ~/.ssh"| A1["403 at creation<br/>(filesystem)"]
+    ROGUE -->|"2 · curl paste.ee"| A2["403 at proxy<br/>(network)"]
+    ROGUE -->|"3 · read $ANTHROPIC_API_KEY"| A3["proxy-managed sentinel<br/>(credential)"]
+    ROGUE -->|"4 · rogue MCP tool"| A4["denied at gateway<br/>(MCP)"]
+
+    classDef eng fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef rogue fill:#fef2f2,stroke:#ef4444,color:#000
+    classDef deny fill:#fee2e2,stroke:#dc2626,color:#000
+    class POL eng
+    class ROGUE rogue
+    class A1,A2,A3,A4 deny
+```
+
+*The capstone: one rogue agent tries all four attacks in a single sandbox, and one policy engine stops each — fail-closed, at a different point in the lifecycle, with no per-attack setup.*
+
 You proved each control on its own - network (Section 03), filesystem (Section 04), credential isolation (Section 12), and MCP (Section 06). This section puts all four together against a **single rogue agent** in **one sandbox**, then hands you a one-page scorecard you can walk a security team through.
 
 The point: governance isn't four separate features you remember to turn on. It's one policy engine, one source of truth for `$$org$$`, enforcing four boundaries at once - so an agent that tries all four attacks in a single session is stopped four times without any per-attack setup.

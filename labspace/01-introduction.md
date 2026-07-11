@@ -1,5 +1,25 @@
 # Why AI Governance
 
+```mermaid
+flowchart LR
+    ADMIN["Docker Hub Org<br/>define policy once"]
+    subgraph PILLARS["Three pillars"]
+        P1["1 · Sandbox policies"]
+        P2["2 · MCP tool governance"]
+        P3["3 · Audit + visibility"]
+    end
+    ADMIN --> PILLARS --> AGENT["AI agent<br/>contained by policy"]
+
+    classDef admin fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pillar fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef agent fill:#ecfdf5,stroke:#10b981,color:#000
+    class ADMIN admin
+    class P1,P2,P3 pillar
+    class AGENT agent
+```
+
+*The concept: define policy once in the Docker Hub org, and three pillars keep the agent inside the guardrails. This lab focuses on Pillar 1.*
+
 AI agents such as Claude, Copilot, Cursor, custom MCP servers run with the same blast radius as the developer running them. That means access to your filesystem, your secrets, your network, your everything.
 
 This is fine when the agent does what you expect. It's a disaster when:

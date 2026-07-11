@@ -1,5 +1,25 @@
 # Setup
 
+```mermaid
+flowchart LR
+    HUB["Docker Hub Org<br/>namespace: your org<br/>(no policies yet)"]
+    subgraph HOST["Host machine"]
+        SBX["sbx installed"]
+        VM["MicroVM engine<br/>(nothing running yet)"]
+        SBX --- VM
+    end
+    HUB -. "docker login" .-> HOST
+
+    classDef host fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef idle fill:#f1f5f9,stroke:#94a3b8,color:#000
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
+    class SBX host
+    class VM idle
+    class HUB hub
+```
+
+*The starting point: a Docker Hub org (just the namespace, no policies yet) and a host with `sbx` installed and its MicroVM engine available. Nothing else has been created — no policies, no secrets, no sandbox.*
+
 Welcome to the Docker AI Governance lab.
 
 Before you start, set the **organization** you'll be using throughout. Most commands and links in later sections substitute `$$org$$` for whatever you set here.

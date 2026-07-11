@@ -1,5 +1,26 @@
 # Your First Mixin Kit: Dockerfile Review Skill
 
+```mermaid
+flowchart LR
+    subgraph KIT["docker-review (mixin)"]
+        SPEC["spec.yaml<br/>kind: mixin"]
+        SKILL["files/workspace/.claude/skills/<br/>docker-review/SKILL.md"]
+    end
+    KIT -- "sbx run claude --kit ./kits/docker-review/" --> VM
+    subgraph VM["Sandbox workspace"]
+        INJECTED[".claude/skills/docker-review/SKILL.md"]
+        CLAUDE["Claude Code<br/>auto-discovers the skill"]
+        INJECTED --> CLAUDE
+    end
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    class SPEC,SKILL kit
+    class INJECTED,CLAUDE vm
+```
+
+*A pure file-based mixin: the `files/workspace/` tree is injected at creation, Claude Code finds the skill in `.claude/skills/`, and uses it automatically — no install commands, no shell.*
+
 In this section you'll build a mixin kit that ships a Claude Code skill into the sandbox workspace. Claude Code picks up skills automatically from `.claude/skills/` in the workspace, so any kit that drops a `SKILL.md` file there is immediately usable when the agent starts.
 
 ## The kit structure

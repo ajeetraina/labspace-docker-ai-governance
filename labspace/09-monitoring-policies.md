@@ -1,5 +1,32 @@
 # Monitoring Policies
 
+```mermaid
+flowchart TB
+    ORG["Org governance"] -. sync .-> LS
+    subgraph LS["sbx policy ls — which rules are active"]
+        R1["remote (org) rules → active"]
+        R2["local / kit rules → inactive<br/>--include-inactive to reveal"]
+    end
+    SBOX["Sandbox traffic"] --> LOG
+    subgraph LOG["sbx policy log — what traffic did"]
+        AL["Allowed: api.anthropic.com ×42 (forward)"]
+        BL["Blocked: example.com (default-deny)"]
+    end
+
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef ok fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    classDef idle fill:#f1f5f9,stroke:#94a3b8,color:#000
+    class ORG hub
+    class SBOX pol
+    class R1,AL ok
+    class BL deny
+    class R2 idle
+```
+
+*Two commands are your local control surface: `sbx policy ls` shows which rules are active (org rules win, local ones go inactive), and `sbx policy log` attributes real traffic to the rule that allowed or blocked it.*
+
 Sections 03 and 04 proved that policies *enforce*. This section is about the other half of operating governance day-to-day: **seeing what's active and what just happened**. Two `sbx` commands do almost all of the work:
 
 - `sbx policy ls` - *what rules are in effect right now*, and where each came from

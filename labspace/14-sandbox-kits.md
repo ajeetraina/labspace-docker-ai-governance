@@ -1,5 +1,29 @@
 # Sandbox Kits - Governance as Code
 
+```mermaid
+flowchart TB
+    subgraph KIT["Kit — governance as code"]
+        SPEC["spec.yaml<br/>caps.network.allow · credentials · files · mcp"]
+        FILES["files/"]
+    end
+    KIT -- "sbx run --kit" --> VM["Sandbox<br/>reproducible & compliant by construction"]
+    CEIL["Org policy = ceiling<br/>network · filesystem · MCP"]
+    CEIL -. "kit can't widen beyond this" .-> VM
+    VM -->|"kit allow ∩ org allow"| OK["allowed"]
+    VM -->|"kit allow − org deny"| BLOCK["still blocked"]
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class SPEC,FILES kit
+    class VM,OK vm
+    class CEIL pol
+    class BLOCK deny
+```
+
+*A kit packages a reproducible sandbox declaratively — but it's developer-side convenience under the org ceiling: a kit can make an approved setup reproducible, it can't grant access the CISO's policy denies.*
+
 The last three sections were the **admin's** view: network, filesystem, and MCP policies authored in Docker Hub and enforced on every sandbox in `$$org$$`. This section is the **developer's** view - how you package a sandbox that's reproducible and compliant *by construction*, instead of a pile of `sbx run` flags and a setup doc.
 
 The answer is a **kit**: a declarative artifact - a `spec.yaml` plus an optional `files/` directory - that bundles everything a sandbox needs: tools to install, files to inject, network rules, credential wiring, and the agent itself. This is the governance-level overview; the sections that follow build kits hands-on.

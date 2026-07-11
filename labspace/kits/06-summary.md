@@ -1,5 +1,27 @@
 # Summary and Next Steps
 
+```mermaid
+flowchart LR
+    subgraph BUILT["What you built"]
+        M["docker-review<br/>mixin (skill)"]
+        A["claude-safe<br/>agent kit (approvals)"]
+    end
+    BUILT --> WINS
+    subgraph WINS["Kits vs shell scripts"]
+        W1["creds never enter VM"]
+        W2["composable egress"]
+        W3["shareable: Git / OCI"]
+        W4["validated before run"]
+    end
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef win fill:#ecfdf5,stroke:#10b981,color:#000
+    class M,A kit
+    class W1,W2,W3,W4 win
+```
+
+*Two real kits built — a mixin and an agent kit — packaging what shell scripts can't: credentials that never enter the VM, composable egress, and Git/OCI sharing.*
+
 ## What you built
 
 In this section you went from running agents directly to packaging sandbox environments as declarative, shareable kits.

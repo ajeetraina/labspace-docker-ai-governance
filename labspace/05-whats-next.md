@@ -1,5 +1,22 @@
 # What's Next
 
+```mermaid
+flowchart LR
+    ADMIN["One source of truth<br/>Admin Console — your org"] --> P1 & P2 & P3
+    P1["Pillar 1 · Sandbox policies<br/>✅ proven (03–13)"]
+    P2["Pillar 2 · MCP tool governance<br/>MCP Gateway Enterprise (rolling out)"]
+    P3["Pillar 3 · Audit + visibility<br/>daemon.log / auditkit → SIEM"]
+
+    classDef admin fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef done fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef road fill:#fff7ed,stroke:#f59e0b,color:#000
+    class ADMIN admin
+    class P1 done
+    class P2,P3 road
+```
+
+*Where the three pillars stand: you proved Pillar 1 end-to-end; Pillars 2 and 3 share the same engine and source of truth and are landing on `sbx` now.*
+
 You just proved **Pillar 1 - Sandbox Policies** end-to-end. Here's how Pillars 2 and 3 fit in.
 
 > ⚠️ **Roadmap content.** The CLI surface for audit and MCP governance is still landing on `sbx`. The descriptions below explain the model and point to where each pillar lives today. Validate against your installed version as features ship.

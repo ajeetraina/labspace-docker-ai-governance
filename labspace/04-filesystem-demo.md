@@ -1,5 +1,30 @@
 # Filesystem Enforcement Demo
 
+```mermaid
+flowchart TB
+    HUB["Filesystem policy (remote)<br/>allow ~/workdemo/** · deny credentials"] -. sync .-> CHK
+    subgraph HOST["Host machine"]
+        T1["~/workdemo/test-1"] --> CHK
+        T2["~/workdemo + ~/.ssh:ro"] --> CHK
+        T3["/tmp/outside-workdemo"] --> CHK
+        CHK{"sbx run — mount check<br/>at creation time"}
+        CHK -->|"allow workdemo"| OK["Sandbox starts ✅"]
+        CHK -->|"deny credentials"| X1["403 — never starts"]
+        CHK -->|"no rule → default-deny"| X2["403 — never starts"]
+    end
+
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef ok fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class HUB hub
+    class CHK pol
+    class OK ok
+    class X1,X2 deny
+```
+
+*Filesystem rules are checked **at sandbox creation**, not at read time. An allowed path mounts and the sandbox starts; a denied or unlisted path fails with 403 and the sandbox never exists.*
+
 Network was the first half of Pillar 1. Filesystem is the other half - and arguably the more visceral one for security teams. *"The agent can't steal SSH keys"* lands harder than *"the agent can't reach paste.ee."*
 
 **A key difference from Section 03:** filesystem rules are checked **at sandbox creation time**, not at file-access time inside the sandbox. The sandbox refuses to be created with a denied mount, instead of letting it in and blocking reads later. That's a stronger model - the denied mount never exists inside the sandbox.

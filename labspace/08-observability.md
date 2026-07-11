@@ -1,5 +1,27 @@
 # Observability - Audit + Dashboard
 
+```mermaid
+flowchart LR
+    subgraph HOST["Host machine"]
+        DAEMON["sbx daemon<br/>every policy decision"]
+        LOG[("daemon.log (JSONL)<br/>allow / deny + rule + reason")]
+        MLOG[("mcp/mcp.log")]
+        DASH["Dashboard localhost:8090<br/>tails logs live"]
+        DAEMON --> LOG
+        DAEMON --> MLOG
+        LOG --> DASH
+        MLOG --> DASH
+    end
+    LOG -. "SIEM-ready JSONL" .-> SIEM["Splunk / Datadog / Sentinel"]
+
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef audit fill:#f3e8fd,stroke:#9333ea,color:#000
+    class DAEMON pol
+    class LOG,MLOG,DASH,SIEM audit
+```
+
+*Every decision the daemon makes is already written as structured JSONL. This section reads it with `jq` and starts a live dashboard that tails it — the audit substrate that's SIEM-ready today.*
+
 Section 05 promised Pillar 3 (Audit + Visibility) was rolling out. The good news: the foundation is already shipping. Every policy decision sbx makes is written to a structured JSONL log on disk today - and this section ships a live dashboard you'll start in **Step 3** to watch those decisions in real time.
 
 <iframe src="http://localhost:8090" width="100%" height="600" style="border:1px solid #cbd5e1; border-radius:8px; background:#f8fafc;" loading="lazy"></iframe>

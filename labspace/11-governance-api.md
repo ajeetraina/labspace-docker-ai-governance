@@ -1,5 +1,25 @@
 # Governance API
 
+```mermaid
+flowchart TB
+    CLIENT["Admin / CI script (curl)"]
+    CLIENT -->|"POST /v2/users/login"| TOKEN["JWT bearer token"]
+    TOKEN --> OPS
+    subgraph OPS["/v2/orgs/{org}/governance/policies"]
+        P["create / get / patch / delete policy"]
+        R["create / patch / delete rules<br/>network: connect:tcp/udp · fs: read/write"]
+    end
+    OPS --> POLICY[("Org policy — same store as the UI")]
+    POLICY -. "≤5 min · sbx policy reset" .-> DEV["sbx policy ls → ORIGIN: remote"]
+
+    classDef api fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    class CLIENT,TOKEN,P,R api
+    class POLICY,DEV pol
+```
+
+*The same control plane as the Admin Console, driven by HTTP: mint a token, CRUD policies and rules as plain REST resources, and they land in the same org policy — showing up as `remote` on a developer's machine within minutes.*
+
 If you took the **API / CLI** path in Sections 03 and 04, you've already driven this control plane once - the `setup-policies.sh` helper wraps exactly the calls below. This section unpacks what that script does, endpoint by endpoint, so you can build your own tooling on top.
 
 The Admin Console UI is perfect for a human making a one-off change. It's the wrong tool for **codifying governance**: putting policies in version control, applying them from CI, or building admin tooling.

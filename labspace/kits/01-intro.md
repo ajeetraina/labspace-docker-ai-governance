@@ -1,5 +1,32 @@
 # Introduction to Docker Sandbox Kits
 
+```mermaid
+flowchart LR
+    subgraph KIT["Kit artifact"]
+        SPEC["spec.yaml<br/>kind: mixin | sandbox"]
+        FILES["files/ directory"]
+    end
+    SPEC --> CAPS
+    FILES --> CAPS
+    subgraph CAPS["What it declares"]
+        I["commands.install (once)"]
+        S["commands.startup (each start)"]
+        F["files → workspace / home"]
+        N["caps.network.allow"]
+        C["credentials.inject (via proxy)"]
+    end
+    CAPS --> VM["Sandbox"]
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef cap fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    class SPEC,FILES kit
+    class I,S,F,N,C cap
+    class VM vm
+```
+
+*A kit is a `spec.yaml` + optional `files/` that declares everything a sandbox needs — tools, files, network rules, credentials — as one shareable artifact.*
+
 So far in this labspace you've been running agents directly with `sbx run`. That works great for one-off sessions. But what happens when you want to:
 
 - Give every sandbox the same linting rules?

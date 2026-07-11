@@ -1,5 +1,29 @@
 # Credential Isolation
 
+```mermaid
+flowchart LR
+    subgraph VM["Sandbox"]
+        AGENT["Agent sees<br/>ANTHROPIC_API_KEY = proxy-managed<br/>(sentinel only)"]
+    end
+    subgraph HOST["Host-side proxy"]
+        MATCH["1 · match destination → service"]
+        READ["2 · read real key<br/>keychain / env / OAuth"]
+        INJ["3 · inject Authorization header"]
+        MATCH --> READ --> INJ
+    end
+    AGENT -- request --> MATCH
+    INJ -- "real key on the wire" --> SVC["api.anthropic.com<br/>(sees real key)"]
+
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef key fill:#f3e8fd,stroke:#9333ea,color:#000
+    class AGENT vm
+    class MATCH,READ,INJ pol
+    class SVC key
+```
+
+*The agent authenticates without ever holding the key: it sees only the `proxy-managed` sentinel, while the proxy matches the service, reads the real secret from the host, and injects it per request.*
+
 Section 04 blocked the agent from **reading** secrets off disk - `~/.ssh`, `~/.aws`, `~/.docker/config.json`. But agents legitimately need credentials: the `claude` agent has to call `api.anthropic.com`, a kit might call GitHub or your own API. So the obvious question is:
 
 > *If the agent can't read my keys from disk, how does it authenticate to the services it's allowed to use?*

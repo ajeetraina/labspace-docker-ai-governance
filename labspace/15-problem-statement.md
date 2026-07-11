@@ -1,5 +1,25 @@
 # The Problem Statement
 
+```mermaid
+flowchart TB
+    subgraph HOST["Host machine (no sandbox)"]
+        AGENT["Coding agent<br/>runs as YOU · full permissions"]
+        SSH["~/.ssh<br/>private keys"]
+        AWS["~/.aws<br/>cloud credentials"]
+        DOCKER["~/.docker/config.json<br/>registry token"]
+        ENV[".env<br/>ANTHROPIC_API_KEY"]
+        AGENT --> SSH & AWS & DOCKER & ENV
+    end
+    AGENT -. "could exfiltrate to" .-> NET["paste.ee · anywhere"]
+
+    classDef agent fill:#fef2f2,stroke:#ef4444,color:#000
+    classDef secret fill:#fee2e2,stroke:#dc2626,color:#000
+    class AGENT,NET agent
+    class SSH,AWS,DOCKER,ENV secret
+```
+
+*No boundary, no policy, no audit. The agent is you — it reads every secret on disk and could send them anywhere. This is the blast radius the rest of the lab closes.*
+
 Section 01 made the argument: an AI agent runs with your full blast radius. This section makes it **visceral** — you'll run a coding agent directly on your host, with no sandbox, and watch it walk straight into your secrets. Nothing stops it, because nothing is watching.
 
 **Time:** ~5 minutes

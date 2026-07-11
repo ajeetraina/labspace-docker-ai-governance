@@ -1,5 +1,38 @@
 # Network Control and Proxy-Managed Credentials
 
+```mermaid
+flowchart LR
+    subgraph KIT["Kit spec.yaml"]
+        NET["caps.network.allow<br/>pypi.org · api.my-service.com"]
+        CRED["credentials.apiKey.inject<br/>domain · header · format"]
+    end
+    subgraph HOST["Host"]
+        SECRET["real secret<br/>(env / sbx secret)"]
+        PROXY["egress proxy"]
+    end
+    KIT --> PROXY
+    SECRET --> PROXY
+    subgraph VM["Sandbox (never holds the secret)"]
+        AGENT["agent"]
+    end
+    AGENT -- request --> PROXY
+    PROXY -->|"allow + inject header"| API["api.my-service.com"]
+    PROXY -->|"not allowed"| BLOCK["blocked"]
+
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef key fill:#f3e8fd,stroke:#9333ea,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class NET,CRED kit
+    class PROXY pol
+    class AGENT vm
+    class SECRET,API key
+    class BLOCK deny
+```
+
+*The kit declares egress rules and a credential source; the proxy enforces the allowlist and injects the secret per request. The raw value stays on the host — the same isolation as the Credential Isolation section, now declarative.*
+
 The docker-review kit needed no network access. Most real kits do - they need to reach a package registry during install, or call an external API at runtime. This section covers how to declare those rules and wire up credentials so they never enter the VM.
 
 ## How network control works

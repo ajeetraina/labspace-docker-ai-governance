@@ -1,5 +1,27 @@
 # MCP Hands-On - Registering Servers with `sbx mcp`
 
+```mermaid
+flowchart LR
+    subgraph VM["Sandbox"]
+        AGENT["Agent<br/>/mcp → one mcp-gateway"]
+    end
+    AGENT == "SBX_MCP_URL" ==> GW{"which gateway?"}
+    GW -- "localhost:8811" --> LOCAL["Local gateway<br/>(Compose / Desktop)"]
+    GW -- "gateway.docker.com" --> HOSTED["Hosted control plane<br/>Cedar policy · audit"]
+    LOCAL --> BE["backends<br/>local-wiki · Notion · docker.io image"]
+    HOSTED --> BE
+    GW -. "registry.modelcontextprotocol.io" .-> BAD["catalog, not a gateway → fails"]
+
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef gw fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef bad fill:#fef2f2,stroke:#ef4444,color:#000
+    class AGENT vm
+    class LOCAL,HOSTED,GW,BE gw
+    class BAD bad
+```
+
+*`SBX_MCP_URL` must point at a real gateway — local or Docker-hosted. The agent talks to one aggregated `mcp-gateway`, every backend sits behind it, and the public registry is a catalog that can't carry the flow. (Full architecture diagram below.)*
+
 Section 05 framed **Pillar 2 - MCP Tool Governance** as roadmap. This section gets your hands on the part that's already shipping: the `sbx mcp` subcommand for registering MCP servers, fronted by the **Docker MCP Gateway**, that your sandboxed agents can call.
 
 By the end you will have:

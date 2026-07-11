@@ -1,5 +1,25 @@
 # Fork an Agent Kit: Claude Without --dangerously-skip-permissions
 
+```mermaid
+flowchart TB
+    BUILTIN["Built-in claude agent kit<br/>run: [claude, --dangerously-skip-permissions]"]
+    BUILTIN -- fork --> SAFE["claude-safe (kind: sandbox)<br/>run: [claude] — approval on every tool call"]
+    SAFE -- "sbx run claude-safe --kit ./kits/claude-safe/" --> VM
+    MIXIN["docker-review mixin"] -- "--kit (stacked)" --> VM
+    subgraph VM["Sandbox"]
+        A["approval prompts + review skill<br/>+ proxy-managed anthropic creds"]
+    end
+
+    classDef base fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef kit fill:#eff6ff,stroke:#3b82f6,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    class BUILTIN base
+    class SAFE,MIXIN kit
+    class A vm
+```
+
+*An agent kit defines an agent from scratch. Here you fork the built-in `claude` to drop `--dangerously-skip-permissions`, then stack the mixin on top — agent kit + mixin compose in one sandbox.*
+
 Mixin kits extend existing agents. Agent kits (`kind: sandbox` in kit-spec v2) define one from scratch. The most common use case is forking a built-in agent to change one thing - the entrypoint, the model, or a network rule.
 
 This section forks the built-in `claude` agent to remove `--dangerously-skip-permissions`, giving you a version where every tool call requires explicit approval.

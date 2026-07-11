@@ -1,5 +1,33 @@
 # Network Enforcement Demo
 
+```mermaid
+flowchart LR
+    subgraph HOST["Host machine"]
+        subgraph VM["Sandbox (MicroVM)"]
+            C["curl ×3"]
+        end
+        PROXY["sbx proxy<br/>network policy (remote)"]
+        C --> PROXY
+    end
+    HUB["Admin Console / API<br/>allow AI · allow Docker · deny exfil"] -. sync .-> PROXY
+    PROXY -->|"allow → 404 reached"| A["api.anthropic.com"]
+    PROXY -->|"deny exfiltration → 403"| B["paste.ee"]
+    PROXY -->|"default-deny → 403"| E["example.com"]
+
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef ok fill:#ecfdf5,stroke:#10b981,color:#000
+    classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
+    class C vm
+    class PROXY pol
+    class HUB hub
+    class A ok
+    class B,E deny
+```
+
+*Three `curl`s, three outcomes: allowed traffic reaches the origin (404), the deny rule blocks paste.ee (403), and default-deny blocks anything unlisted (403) — all decided at the sbx proxy.*
+
 Define network policies - in the Admin Console or scripted through the Governance API - watch them flow to your developer machine, and prove enforcement with three `curl` commands inside a sandbox.
 
 This section proves the network half of Pillar 1. Section 04 proves the filesystem half.
