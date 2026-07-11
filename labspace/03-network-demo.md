@@ -2,14 +2,17 @@
 
 ```mermaid
 flowchart LR
+    HUB["Docker Hub Org<br/>network policy<br/>allow AI · allow Docker · deny exfil"]
     subgraph HOST["Host machine"]
-        subgraph VM["Sandbox (MicroVM)"]
-            C["curl ×3"]
+        PROXY["sbx daemon<br/>network proxy + policy (cached)"]
+        subgraph VM["MicroVM (sandbox)"]
+            C["shell / curl ×3"]
+            WS["workspace ~/workdemo/scratch<br/>(mounted)"]
+            C --- WS
         end
-        PROXY["sbx proxy<br/>network policy (remote)"]
         C --> PROXY
     end
-    HUB["Admin Console / API<br/>allow AI · allow Docker · deny exfil"] -. sync .-> PROXY
+    HUB -. "policy synced" .-> PROXY
     PROXY -->|"allow → 404 reached"| A["api.anthropic.com"]
     PROXY -->|"deny exfiltration → 403"| B["paste.ee"]
     PROXY -->|"default-deny → 403"| E["example.com"]
@@ -19,7 +22,7 @@ flowchart LR
     classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
     classDef ok fill:#ecfdf5,stroke:#10b981,color:#000
     classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
-    class C vm
+    class C,WS vm
     class PROXY pol
     class HUB hub
     class A ok

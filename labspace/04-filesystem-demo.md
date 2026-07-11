@@ -2,16 +2,20 @@
 
 ```mermaid
 flowchart TB
-    HUB["Filesystem policy (remote)<br/>allow ~/workdemo/** · deny credentials"] -. sync .-> CHK
+    HUB["Docker Hub Org<br/>filesystem policy<br/>allow ~/workdemo/** · deny credentials"]
     subgraph HOST["Host machine"]
         T1["~/workdemo/test-1"] --> CHK
         T2["~/workdemo + ~/.ssh:ro"] --> CHK
         T3["/tmp/outside-workdemo"] --> CHK
-        CHK{"sbx run — mount check<br/>at creation time"}
-        CHK -->|"allow workdemo"| OK["Sandbox starts ✅"]
+        CHK{"sbx daemon — mount check<br/>at creation (cached policy)"}
+        CHK -->|"allow workdemo"| VM
         CHK -->|"deny credentials"| X1["403 — never starts"]
         CHK -->|"no rule → default-deny"| X2["403 — never starts"]
+        subgraph VM["MicroVM (sandbox) starts ✅"]
+            WS["workspace ~/workdemo/test-1<br/>(mounted)"]
+        end
     end
+    HUB -. "policy synced" .-> CHK
 
     classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
     classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
@@ -19,7 +23,7 @@ flowchart TB
     classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
     class HUB hub
     class CHK pol
-    class OK ok
+    class WS ok
     class X1,X2 deny
 ```
 

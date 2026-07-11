@@ -2,10 +2,10 @@
 
 ```mermaid
 flowchart LR
-    subgraph VM["Sandbox"]
+    subgraph VM["MicroVM (sandbox)"]
         AGENT["Agent sees<br/>ANTHROPIC_API_KEY = proxy-managed<br/>(sentinel only)"]
     end
-    subgraph HOST["Host-side proxy"]
+    subgraph HOST["Host machine — sbx proxy"]
         MATCH["1 · match destination → service"]
         READ["2 · read real key<br/>keychain / env / OAuth"]
         INJ["3 · inject Authorization header"]

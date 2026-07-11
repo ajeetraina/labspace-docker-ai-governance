@@ -2,20 +2,30 @@
 
 ```mermaid
 flowchart TB
-    subgraph ENGINE["One policy engine — your org"]
-        POL["network · filesystem · credential · MCP"]
+    HUB["Docker Hub Org — one policy engine<br/>network · filesystem · credential · MCP"]
+    subgraph HOST["Host machine"]
+        DAEMON["sbx daemon + gateway<br/>enforces policy (cached)"]
+        subgraph VM["MicroVM (sandbox)"]
+            ROGUE["Rogue / prompt-injected agent"]
+            WS["workspace ~/workdemo/capstone<br/>(only this is mounted)"]
+            ROGUE --- WS
+        end
     end
-    ROGUE["Rogue / prompt-injected agent<br/>one sandbox · four attacks"]
-    POL -. enforces .-> ROGUE
+    HUB -. "policy synced at login" .-> DAEMON
+    DAEMON -. enforces .-> VM
     ROGUE -->|"1 · mount ~/.ssh"| A1["403 at creation<br/>(filesystem)"]
     ROGUE -->|"2 · curl paste.ee"| A2["403 at proxy<br/>(network)"]
     ROGUE -->|"3 · read $ANTHROPIC_API_KEY"| A3["proxy-managed sentinel<br/>(credential)"]
     ROGUE -->|"4 · rogue MCP tool"| A4["denied at gateway<br/>(MCP)"]
 
-    classDef eng fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
+    classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
+    classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     classDef rogue fill:#fef2f2,stroke:#ef4444,color:#000
     classDef deny fill:#fee2e2,stroke:#dc2626,color:#000
-    class POL eng
+    class HUB hub
+    class DAEMON pol
+    class WS vm
     class ROGUE rogue
     class A1,A2,A3,A4 deny
 ```

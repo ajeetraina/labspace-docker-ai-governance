@@ -2,30 +2,36 @@
 
 ```mermaid
 flowchart TB
+    HUB["Docker Hub Org<br/>network + filesystem policy"]
     subgraph HOST["Host machine"]
+        DAEMON["sbx daemon<br/>proxy + policy (cached)"]
+        SRC["~/workdemo/catalog-service-node<br/>(source on host)"]
         subgraph STACK["Running app (for you)"]
             APP["catalog-service<br/>Postgres · Kafka · S3"]
         end
-        subgraph VM["Sandbox (MicroVM) — agent's workbench"]
+        subgraph VM["MicroVM (sandbox) — agent's workbench"]
             AGENT["Claude (autonomous)"]
+            WS["catalog source<br/>(bind-mounted)"]
             DIND["sandbox Docker daemon<br/>Testcontainers run here"]
-            AGENT --> DIND
+            AGENT --- WS
+            AGENT --- DIND
         end
-        SRC["~/workdemo/catalog-service-node<br/>bind-mounted source"]
-        PROXY["sbx proxy + policy"]
     end
-    AGENT -- edits --> SRC
-    SRC -. "git diff for review" .-> YOU["you"]
-    AGENT -- "anthropic · npm (allow)" --> PROXY --> NET["approved hosts"]
+    HUB -. "policy synced" .-> DAEMON
+    SRC == "bind mount" ==> WS
+    WS -. "edits land on host → git diff" .-> SRC
+    AGENT -- "anthropic · npm (allow)" --> DAEMON --> NET["approved hosts"]
     AGENT -. "paste.ee / ~/.ssh (deny)" .-> BLOCK["blocked"]
 
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
     classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
     classDef app fill:#eff6ff,stroke:#3b82f6,color:#000
     classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
-    class AGENT,DIND,SRC vm
-    class PROXY,NET pol
-    class APP app
+    class HUB hub
+    class AGENT,WS,DIND vm
+    class DAEMON,NET pol
+    class APP,SRC app
     class BLOCK deny
 ```
 

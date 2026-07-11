@@ -2,28 +2,35 @@
 
 ```mermaid
 flowchart TB
+    HUB["Docker Hub Org<br/>network + filesystem policy"]
     subgraph HOST["Host machine"]
-        subgraph VM["MicroVM (sandbox)"]
-            AGENT["Agent<br/>sees only ~/workdemo<br/>ANTHROPIC_API_KEY = proxy-managed"]
-        end
-        PROXY["sbx daemon<br/>network proxy · injects real key"]
+        DAEMON["sbx daemon<br/>network proxy + policy (cached) · injects real key"]
+        WORK["~/workdemo (on host)"]
         SECRETS["~/.ssh · ~/.aws · ~/.docker<br/>NOT mounted"]
         KEY["OS keychain<br/>real API key"]
+        subgraph VM["MicroVM (sandbox)"]
+            AGENT["Agent<br/>ANTHROPIC_API_KEY = proxy-managed"]
+            WS["workspace ~/workdemo<br/>(mounted)"]
+            AGENT --- WS
+        end
     end
-    AGENT -- "workspace only" --> WORK["~/workdemo"]
+    HUB -. "policy synced at docker login" .-> DAEMON
+    WORK == "mount" ==> WS
     AGENT -. "cannot reach" .-> SECRETS
-    AGENT -- "API calls" --> PROXY
-    KEY --> PROXY
-    PROXY -- "real key on the wire" --> ANTHROPIC["api.anthropic.com"]
+    AGENT -- "API calls" --> DAEMON
+    KEY --> DAEMON
+    DAEMON -- "real key on the wire" --> ANTHROPIC["api.anthropic.com"]
 
+    classDef hub fill:#eef2ff,stroke:#6366f1,color:#000
     classDef vm fill:#ecfdf5,stroke:#10b981,color:#000
     classDef pol fill:#fff7ed,stroke:#f59e0b,color:#000
     classDef deny fill:#fef2f2,stroke:#ef4444,color:#000
     classDef key fill:#f3e8fd,stroke:#9333ea,color:#000
-    class AGENT,WORK vm
-    class PROXY pol
+    class HUB hub
+    class AGENT,WS vm
+    class DAEMON pol
     class SECRETS deny
-    class KEY,ANTHROPIC key
+    class KEY,ANTHROPIC,WORK key
 ```
 
 *Same agent, now inside a MicroVM. Only `~/workdemo` is mounted, the credential dirs never enter the box, and the API key it uses is a sentinel — the real key stays on the host and is injected at the proxy.*

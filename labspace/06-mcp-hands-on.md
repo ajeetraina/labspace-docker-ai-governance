@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart LR
-    subgraph VM["Sandbox"]
+    subgraph VM["MicroVM (sandbox)"]
         AGENT["Agent<br/>/mcp → one mcp-gateway"]
     end
     AGENT == "SBX_MCP_URL" ==> GW{"which gateway?"}
