@@ -1,11 +1,12 @@
 # Sandboxing the Agent
 
-The Problem Statement showed an agent reaching straight into your secrets. The fix is to stop running it on bare metal and run it inside a **sandbox** — an isolated MicroVM where the agent only sees the directory you hand it, never touches the rest of your host, and never holds your real API key.
+The Problem Statement showed an agent reaching straight into your secrets. 
+The fix is to stop running it on bare metal and run it inside a **sandbox** ~ an isolated MicroVM where the agent only sees the directory you hand it, never touches the rest of your host, and never holds your real API key.
 
 This section gets `sbx` ready, wires up your agent, and runs it sandboxed. (Install and `docker login` were covered in **Setup**.)
 
 **Time:** ~10 minutes
-**Prerequisites:** Section 00 — Setup (sbx installed, logged in).
+**Prerequisites:** Section 00 - Setup (sbx installed, logged in).
 
 ## Step 1 - Confirm sbx is ready
 
