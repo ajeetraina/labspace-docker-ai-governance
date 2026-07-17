@@ -39,7 +39,8 @@ No sandbox. Just the agent, in your real home directory, with your real permissi
 
 ```bash no-run-button
 cd ~
-claude
+curl -fsSL https://chatgpt.com/codex/install.sh | sh
+codex
 ```
 
 This is how most people run coding agents today: straight on the metal — or in a container that still bind-mounts their home directory and environment.
