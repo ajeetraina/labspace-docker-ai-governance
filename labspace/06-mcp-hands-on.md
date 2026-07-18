@@ -288,6 +288,7 @@ Two other registration modes work the same way against either gateway:
 
 ```bash no-run-button
 # Bring up a sandbox with the server attached from the start
+cd ~/workdemo
 sbx run claude --static-mcp local-wiki
 
 # ...or load it into a sandbox that's already running
