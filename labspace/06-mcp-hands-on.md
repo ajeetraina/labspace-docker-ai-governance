@@ -386,6 +386,27 @@ Reading it:
 - `resource is MCP::Tool`, with `resource.server` and `resource.name` - the exact tool being called.
 - Because MCP governance is **default-deny**, this `permit` is the *whole* allow-list: `get_me` on `github-official` is allowed, and **every other tool and every other server is blocked**. To allow more, add more `permit` clauses (or broaden the `when` condition).
 
+### The `local-wiki` policy for this lab
+
+To make the Wikipedia prompt from Step 5 work, the org policy must `permit` the tools your agent actually calls. Scope it to the exact three tools the prompt exercises rather than the whole server - the tighter rule proves you can constrain *which* tools run, not just which server:
+
+```cedar
+permit(
+  principal,
+  action == MCP::Action::"invoke",
+  resource is MCP::Tool
+)
+when {
+  resource.server == "local-wiki" &&
+  ["search_wikipedia", "get_summary", "extract_key_facts"].contains(resource.name)
+};
+```
+
+A call to any other `local-wiki` tool (e.g. `get_links`) is denied and audited - exactly the behaviour you want to demonstrate. To allow the whole server instead, drop the `resource.name` clause and keep only `resource.server == "local-wiki"`.
+
+> [!NOTE]
+> The `resource.name` values must match the server's real tool names. If a call you expected to work is denied, list them with `sbx mcp tools local-wiki` and adjust the `.contains([...])` list. This is an **MCP** (Cedar) rule, separate from the network allow rule that lets the `mcp/wikipedia-mcp` container reach `*.wikipedia.org:443` - both layers must be open for the prompt to succeed.
+
 ### How it's enforced
 
 Every MCP call routes through the gateway - the single chokepoint - so the policy is evaluated on **each invocation**, and the call is authenticated, authorized, and logged before it reaches the backend. It's the same policy engine that enforced your network and filesystem rules, so there's no separate surface and no bypass path. A developer can register any server they like with `sbx mcp add`; if the org policy doesn't `permit` its tools, the agent's calls are denied and audited (Section 10). You prove exactly this in the **Putting It All Together** capstone (Step 7).
