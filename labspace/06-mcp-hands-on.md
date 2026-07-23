@@ -398,7 +398,11 @@ permit(
 )
 when {
   resource.server == "local-wiki" &&
-  ["search_wikipedia", "get_summary", "extract_key_facts"].contains(resource.name)
+  [
+    "search_wikipedia",
+    "get_summary",
+    "extract_key_facts"
+  ].contains(resource.name)
 };
 ```
 
